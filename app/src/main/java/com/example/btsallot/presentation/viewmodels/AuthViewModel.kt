@@ -21,16 +21,28 @@ class AuthViewModel(
 
             val tokenResult = repository.getGoogleIdToken()
             if (tokenResult.isFailure){
-                _authState.value = AuthState.Error(tokenResult.exceptionOrNull()?.message ?:"Failed to receive ID token")
+                val exception = tokenResult.exceptionOrNull()
+                _authState.value = AuthState.Error(
+                    exception?.message ?: "Could not start Google sign-in. Please make sure a Google account is available on this device and try again."
+                )
                 return@launch
             }
             val idToken = tokenResult.getOrThrow()
             val signInResult = repository.signInWithFirebase(idToken)
 
-            _authState.value = if (signInResult.isSuccess){
-                AuthState.Success(signInResult.getOrThrow())
+            if (signInResult.isFailure){
+                _authState.value = AuthState.Error("Google Sign-in failed.")
+            return@launch
             }
-            else AuthState.Error("Google Sign-in failed.")
+
+            val user = signInResult.getOrThrow()
+            val userDocResult = repository.ensureUserDocumentExists(user)
+            if (userDocResult.isFailure) {
+                _authState.value = AuthState.Error("Failed to save user details")
+                return@launch
+            }
+
+            _authState.value = AuthState.Success(user)
 
         }
     }

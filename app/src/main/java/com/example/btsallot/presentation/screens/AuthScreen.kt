@@ -14,16 +14,32 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.btsallot.data.repository.AuthRepository
 import com.example.btsallot.presentation.viewmodels.AuthState
 import com.example.btsallot.presentation.viewmodels.AuthViewModel
 
 @Composable
 fun LoginScreen(
-    viewModel: AuthViewModel,
     onSignInSuccess: () -> Unit
 ) {
+    val context = LocalContext.current.applicationContext
+
+    val viewModel: AuthViewModel = viewModel(
+        factory = object :  ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return AuthViewModel(
+                    repository = AuthRepository(context)
+                ) as T
+            }
+        }
+    )
+
     val authState by viewModel.authState.collectAsStateWithLifecycle()
 
     // When state becomes Success, navigate away

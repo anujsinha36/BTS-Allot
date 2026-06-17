@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.btsallot.navigation.NavGraph
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -23,7 +24,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             BTSAllotTheme {
 //                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-
+                NavGraph()
 
 //                }
             }

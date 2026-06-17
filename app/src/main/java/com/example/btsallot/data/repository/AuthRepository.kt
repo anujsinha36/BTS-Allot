@@ -15,11 +15,15 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthCredential
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
+import kotlin.collections.hashMapOf
 import kotlin.math.sqrt
 
 class AuthRepository(private val context: Context) {
     private val auth = Firebase.auth
+    private val firestoreDB = Firebase.firestore
     private val credentialManager = CredentialManager.create(context)
 
     // Job 1: Get ID token from Google
@@ -81,6 +85,30 @@ class AuthRepository(private val context: Context) {
         catch (e: Exception){
             Result.failure(e)
         }
+    }
+
+    suspend fun ensureUserDocumentExists(user: FirebaseUser): Result<Unit> {
+       return try {
+           val userDoc = firestoreDB.collection("users")
+               .document(user.uid)
+
+           val snapshot = userDoc.get().await()
+
+           if (!snapshot.exists()){
+               val userData = hashMapOf(
+                   "uid" to user.uid,
+                   "name" to user.displayName,
+                   "email" to user.email,
+                   "role" to "VOLUNTEER",
+                   "photo" to user.photoUrl?.toString()
+               )
+               userDoc.set(userData).await()
+           }
+           Result.success(Unit)
+       }
+       catch (e: Exception){
+           Result.failure(e)
+       }
     }
 
     fun signOut(){
