@@ -34,12 +34,15 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
     buildFeatures {
         compose = true
     }
+
 }
 
 dependencies {
@@ -86,4 +89,10 @@ dependencies {
 
     // Testing Navigation
     androidTestImplementation("androidx.navigation:navigation-testing:$nav_version")
+
+    //Calendar Library
+    coreLibraryDesugaring ("com.android.tools:desugar_jdk_libs:2.1.5")
+    implementation("com.kizitonwose.calendar:compose:2.10.1")
+
+
 }
