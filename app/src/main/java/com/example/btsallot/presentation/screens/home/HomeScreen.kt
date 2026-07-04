@@ -1,4 +1,4 @@
-package com.example.btsallot.presentation.screens
+package com.example.btsallot.presentation.screens.home
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

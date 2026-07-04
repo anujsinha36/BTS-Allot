@@ -2,11 +2,13 @@ package com.example.btsallot.data.repository
 
 
 import android.content.Context
+import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import com.example.btsallot.R
+import com.example.btsallot.data.model.Duty
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
@@ -110,6 +112,27 @@ class AuthRepository(private val context: Context) {
            Result.failure(e)
        }
     }
+
+    suspend fun createDuty(duty: Duty): Result<Unit>{
+        return try {
+            val dutyDoc = firestoreDB.collection("duties").document()
+
+            //put a check here with date and title to avoid duplicate creation
+            val dutyWithID = duty.copy(id = dutyDoc.id)
+            dutyDoc.set(dutyWithID).await()
+            Log.d("RepoDubg","duty succesful")
+
+            Result.success(Unit)
+        }
+        catch (e: Exception){
+            Log.e("RepoDubg",e.message.toString())
+            Result.failure(e)
+
+        }
+    }
+
+
+
 
     fun signOut(){
         auth.signOut()

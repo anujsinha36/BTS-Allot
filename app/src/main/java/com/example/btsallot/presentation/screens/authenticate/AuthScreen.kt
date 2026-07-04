@@ -1,4 +1,4 @@
-package com.example.btsallot.presentation.screens
+package com.example.btsallot.presentation.screens.authenticate
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

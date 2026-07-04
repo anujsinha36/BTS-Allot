@@ -2,6 +2,7 @@ package com.example.btsallot.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.btsallot.data.model.Duty
 import com.example.btsallot.data.repository.AuthRepository
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,6 +51,13 @@ class AuthViewModel(
     fun signOutWithGoogle(){
         repository.signOut()
         _authState.value = AuthState.Idle
+    }
+
+    fun createDuty(duty: Duty){
+        viewModelScope.launch {
+            repository.createDuty(duty)
+        }
+
     }
 
 }
