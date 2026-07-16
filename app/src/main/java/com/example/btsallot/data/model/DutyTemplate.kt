@@ -1,7 +1,7 @@
 package com.example.btsallot.data.model
 
-data class Duty(
+data class DutyTemplate(
     val id: String = "",
-    val date: String = "",
+    val dayOfWeek: String = "",
     val duty: DutyForm = DutyForm()
 )

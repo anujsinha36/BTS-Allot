@@ -84,11 +84,11 @@ fun CreateDutySheet(
         Row{
             Button(enabled = isFormValid,
                 onClick = {
-                val duty = Duty(
-                    date = date1,
-                    requiredVolunteers = sokahanCount.value
-                )
-                viewModel.createDuty(duty)
+//                val duty = Duty(
+//                    date = date1,
+//                    requiredVolunteers = sokahanCount.value
+//                )
+              //  viewModel.createDuty(duty)
                 onSave()
             }) { Text("Save")}
             Button(onClick = {
