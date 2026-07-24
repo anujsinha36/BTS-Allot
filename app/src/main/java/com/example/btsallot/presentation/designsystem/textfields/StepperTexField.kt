@@ -78,7 +78,6 @@ fun PreviewStepperFunction(){
             label = "BTS Count",
             value = 2,
             onValueChange = {},
-            // modifier = TODO(),
             minValue = 1,
         )
     }
