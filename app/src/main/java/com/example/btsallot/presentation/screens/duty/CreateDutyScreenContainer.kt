@@ -6,8 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.btsallot.data.repository.AuthRepository
-import com.example.btsallot.presentation.screens.CreateDutyResult
-import com.example.btsallot.presentation.screens.CreateDutyScreen
 import com.example.btsallot.presentation.viewmodels.AuthViewModel
 
 @Composable
