@@ -5,10 +5,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.btsallot.presentation.screens.CreateDutyScreen
 import com.example.btsallot.presentation.screens.home.HomeScreen
 import com.example.btsallot.presentation.screens.authenticate.LoginScreen
 import com.example.btsallot.presentation.screens.calendar.CalenderScreen
-import com.example.btsallot.presentation.screens.duty.DialogSheet
+import com.example.btsallot.presentation.screens.duty.CreateDutyScreenContainer
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
@@ -48,13 +49,22 @@ fun NavGraph(){
 
         composable<Screens.CreateDutyScreen> {
             val args = it.toRoute<Screens.CreateDutyScreen>()
-            DialogSheet(date = args.date,
-                onSave = {navController.navigate(Screens.CalendarScreen)},
-                onCancel = {navController.navigate(Screens.CalendarScreen)}
-                )
+//            DialogSheet(date = args.date,
+//                onSave = {navController.navigate(Screens.CalendarScreen)},
+//                onCancel = {navController.navigate(Screens.CalendarScreen)}
+//                )
+            CreateDutyScreenContainer(
+                dateFromCalendar = args.date,
+                onSaveClick = {
+                    navController.navigate(Screens.CalendarScreen)
+                },
+                onBackClick = {
+                    navController.navigate(Screens.CalendarScreen)
+                },
+                isTemplate = false
+            )
         }
     }
 }
 
-// Once done, start with UI and complete admin duty creation
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +36,9 @@ import com.example.btsallot.presentation.theme.BTSAllotTheme
 @Composable
 fun OptionsSelectionSheet(
     title: String,
+    options: List<String>,
+    onOptionSelected: (String) -> Unit,
+    selectedOption: String? = null,
     onDismiss: () -> Unit
 
 ){
@@ -42,7 +46,13 @@ fun OptionsSelectionSheet(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-      //  OptionsSelectionSheetContent()
+        OptionsSelectionSheetContent(
+            title = title,
+            onDismiss = onDismiss,
+            options = options,
+            onOptionsSelected = onOptionSelected,
+            selectedOption = selectedOption
+        )
     }
 }
 
@@ -56,11 +66,11 @@ fun OptionsSelectionSheetContent(
     selectedOption: String? = null
 ){
     Surface(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+        modifier = Modifier.fillMaxWidth(0.8f).wrapContentHeight(),
         shape = RoundedCornerShape(16.dp),
         color = MaterialTheme.colorScheme.surface
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp, horizontal = 10.dp)) {
+        Column(modifier = Modifier.padding(vertical = 10.dp)) {
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically) {

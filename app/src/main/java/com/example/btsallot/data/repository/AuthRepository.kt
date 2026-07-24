@@ -89,6 +89,7 @@ class AuthRepository(private val context: Context) {
         }
     }
 
+    //see if we can create a User data class as well
     suspend fun ensureUserDocumentExists(user: FirebaseUser): Result<Unit> {
        return try {
            val userDoc = firestoreDB.collection("users")

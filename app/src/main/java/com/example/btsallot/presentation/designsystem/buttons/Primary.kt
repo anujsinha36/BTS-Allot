@@ -17,7 +17,8 @@ import com.example.btsallot.presentation.theme.SurfaceWhite
 fun PrimaryButton(
     onClick: () -> Unit,
     text: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean
 ){
     Button(
         onClick = onClick,
@@ -25,6 +26,7 @@ fun PrimaryButton(
             .fillMaxWidth()
             .height(52.dp),
         shape = RoundedCornerShape(14.dp),
+        enabled = enabled,
         colors = ButtonDefaults.buttonColors(containerColor = Indigo600)
     ) {
         Text(

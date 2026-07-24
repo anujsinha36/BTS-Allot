@@ -31,6 +31,7 @@ fun DropdownTextField(
     modifier: Modifier = Modifier,
     trailingIcon: ImageVector? = null,
     isCalendar: Boolean = false,
+    enabled: Boolean = true
 ) {
     Box(modifier = modifier.fillMaxWidth()){
         OutlinedTextField(
@@ -53,6 +54,7 @@ fun DropdownTextField(
                     )
             },
             readOnly = true,
+            enabled = enabled,
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(0.4f),
                 focusedBorderColor = MaterialTheme.colorScheme.primary.copy(0.4f),
