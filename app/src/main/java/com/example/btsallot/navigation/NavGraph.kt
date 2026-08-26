@@ -42,7 +42,21 @@ fun NavGraph(){
 
         composable<Screens.CalendarScreen> {
             CalenderScreen(
-                onDateClicked = {navController.navigate(Screens.CreateDutyScreen(it))}
+                onDateClicked = {navController.navigate(Screens.CreateDutyScreen(it))},
+                onCreateTemplate = {navController.navigate(Screens.TemplateScreen)}
+            )
+        }
+
+        composable<Screens.TemplateScreen> {
+            CreateDutyScreenContainer(
+                onSaveClick = {
+                    navController.navigate(Screens.CalendarScreen)
+                },
+                onBackClick = {
+                    navController.navigate(Screens.CalendarScreen)
+                },
+                isTemplate = true,
+                dateFromCalendar = null
             )
         }
 

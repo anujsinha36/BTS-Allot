@@ -165,7 +165,7 @@ fun CreateDutyScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                    .padding(horizontal = 12.dp, vertical = 45.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -338,4 +338,4 @@ sealed interface CreateDutyResult{
 }
 
 
-//update the start end time data type in data class and here, then create templates
+//create templates and connect to cloud function

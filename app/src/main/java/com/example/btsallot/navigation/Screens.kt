@@ -15,6 +15,9 @@ sealed class Screens {
     object CalendarScreen : Screens()
 
     @Serializable
+    object TemplateScreen: Screens()
+
+    @Serializable
     data class CreateDutyScreen(
         val date: String
     ) : Screens()

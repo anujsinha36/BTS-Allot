@@ -10,6 +10,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.Indigo600
 import com.example.btsallot.presentation.theme.SurfaceWhite
 
@@ -27,12 +29,37 @@ fun PrimaryButton(
             .height(52.dp),
         shape = RoundedCornerShape(14.dp),
         enabled = enabled,
-        colors = ButtonDefaults.buttonColors(containerColor = Indigo600)
+       // colors = ButtonDefaults.buttonColors(containerColor = Indigo600)
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.titleMedium,
-            color = SurfaceWhite
+           // style = MaterialTheme.typography.titleSmall,
+          //  color = SurfaceWhite
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+fun PrimaryButtonPreview() {
+    BTSAllotTheme {
+        PrimaryButton(
+            onClick = {},
+            text = "Primary Button",
+            enabled = true
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PrimaryButtonDisabledPreview() {
+    BTSAllotTheme {
+        PrimaryButton(
+            onClick = {},
+            text = "Disabled Button",
+            enabled = false
+        )
+    }
+}
+

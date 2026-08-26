@@ -9,7 +9,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -23,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.btsallot.presentation.designsystem.buttons.PrimaryButton
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.kizitonwose.calendar.compose.*
 import com.kizitonwose.calendar.core.CalendarDay
@@ -40,7 +45,8 @@ import java.util.Locale
 
 @Composable
 fun CalenderScreen(
-    onDateClicked: (String) -> Unit = {}
+    onDateClicked: (String) -> Unit = {},
+    onCreateTemplate: ()-> Unit = {}
 ){
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(6) }
@@ -101,6 +107,13 @@ fun CalenderScreen(
                 DaysOfWeekTitle(daysOfWeek)
             }
         )
+
+        Spacer(modifier = Modifier.padding(vertical = 50.dp))
+
+        PrimaryButton(onClick = {onCreateTemplate()},
+            text = "Create Template ->",
+            enabled = true)
+
     }
 
 }

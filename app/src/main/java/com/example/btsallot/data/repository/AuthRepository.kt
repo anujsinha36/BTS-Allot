@@ -9,6 +9,7 @@ import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import com.example.btsallot.R
 import com.example.btsallot.data.model.Duty
+import com.example.btsallot.data.model.DutyTemplate
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
@@ -122,6 +123,24 @@ class AuthRepository(private val context: Context) {
             val dutyWithID = duty.copy(id = dutyDoc.id)
             dutyDoc.set(dutyWithID).await()
             Log.d("RepoDubg","duty succesful")
+
+            Result.success(Unit)
+        }
+        catch (e: Exception){
+            Log.e("RepoDubg",e.message.toString())
+            Result.failure(e)
+
+        }
+    }
+
+    suspend fun createTemplate(template: DutyTemplate): Result<Unit>{
+        return try {
+            val templateDoc = firestoreDB.collection("templates").document()
+
+            //put a check here with date and title to avoid duplicate creation
+            val templateWithID = template.copy(id = templateDoc.id)
+            templateDoc.set(templateWithID).await()
+            Log.d("RepoDubg","template successfully created")
 
             Result.success(Unit)
         }

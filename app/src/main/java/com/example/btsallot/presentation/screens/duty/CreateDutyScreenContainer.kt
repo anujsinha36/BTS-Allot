@@ -35,7 +35,7 @@ fun CreateDutyScreenContainer(
                     viewModel.createDuty(result.duty)
                 }
                 is CreateDutyResult.Template -> {
-                    viewModel.createTemplates(result.template)
+                    viewModel.createTemplate(result.template)
                 }
             }
             onSaveClick ()

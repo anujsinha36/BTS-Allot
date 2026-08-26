@@ -60,9 +60,9 @@ class AuthViewModel(
         }
 
     }
-    fun createTemplates(template: DutyTemplate){
+    fun createTemplate(template: DutyTemplate){
         viewModelScope.launch {
-           // repository.createDuty(template)
+            repository.createTemplate(template)
         }
 
     }
