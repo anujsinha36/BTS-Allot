@@ -48,9 +48,11 @@ export function getDatesForWeekday(
 }
 
 export function formatDate(date: Date): string {
-  return date.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
+  const year = date.getFullYear();
+  // getMonth() is 0-indexed, so we add 1.
+  // padStart(2, '0') ensures 1 becomes "01".
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }

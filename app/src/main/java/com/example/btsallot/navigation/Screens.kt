@@ -1,6 +1,7 @@
 package com.example.btsallot.navigation
 
 import kotlinx.serialization.Serializable
+import java.time.LocalDate
 import java.util.Date
 
 sealed class Screens {
@@ -16,6 +17,9 @@ sealed class Screens {
 
     @Serializable
     object TemplateScreen: Screens()
+
+    @Serializable
+    object BTSCalendarScreen : Screens()
 
     @Serializable
     data class CreateDutyScreen(

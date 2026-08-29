@@ -7,7 +7,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.btsallot.presentation.screens.home.HomeScreen
 import com.example.btsallot.presentation.screens.authenticate.LoginScreen
-import com.example.btsallot.presentation.screens.calendar.CalenderScreen
+import com.example.btsallot.presentation.screens.calendar.AdminCalenderScreen
+import com.example.btsallot.presentation.screens.calendar.BTSCalenderScreen
 import com.example.btsallot.presentation.screens.duty.CreateDutyScreenContainer
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -41,10 +42,13 @@ fun NavGraph(){
         }
 
         composable<Screens.CalendarScreen> {
-            CalenderScreen(
-                onDateClicked = {navController.navigate(Screens.CreateDutyScreen(it))},
+            AdminCalenderScreen(
+                onDateClicked = {navController.navigate(Screens.CreateDutyScreen(it.toString()))},
                 onCreateTemplate = {navController.navigate(Screens.TemplateScreen)}
             )
+        }
+        composable<Screens.BTSCalendarScreen> {
+            BTSCalenderScreen()
         }
 
         composable<Screens.TemplateScreen> {
@@ -67,7 +71,7 @@ fun NavGraph(){
 //                onCancel = {navController.navigate(Screens.CalendarScreen)}
 //                )
             CreateDutyScreenContainer(
-                dateFromCalendar = args.date,
+                dateFromCalendar = java.time.LocalDate.parse(args.date),
                 onSaveClick = {
                     navController.navigate(Screens.CalendarScreen)
                 },

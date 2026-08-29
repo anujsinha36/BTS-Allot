@@ -117,10 +117,11 @@ class AuthRepository(private val context: Context) {
 
     suspend fun createDuty(duty: Duty): Result<Unit>{
         return try {
-            val dutyDoc = firestoreDB.collection("duties").document()
+            val docId = "${duty.date}_${duty.duty.meetingName.replace(" ","_")}"
 
-            //put a check here with date and title to avoid duplicate creation
-            val dutyWithID = duty.copy(id = dutyDoc.id)
+            val dutyDoc = firestoreDB.collection("duties").document(docId)
+
+            val dutyWithID = duty.copy(id = docId)
             dutyDoc.set(dutyWithID).await()
             Log.d("RepoDubg","duty succesful")
 
@@ -130,6 +131,20 @@ class AuthRepository(private val context: Context) {
             Log.e("RepoDubg",e.message.toString())
             Result.failure(e)
 
+        }
+    }
+
+    suspend fun getDuties(): Result<List<Duty>>{
+        return try {
+            val duties = firestoreDB.collection("duties")
+                .get().await().toObjects(Duty::class.java)
+            Log.d("RepoDubg","${duties}")
+            Result.success(duties)
+
+        }
+        catch (e: Exception){
+            Log.e("RepoDubg",e.message.toString())
+            Result.failure(e)
         }
     }
 
@@ -150,8 +165,6 @@ class AuthRepository(private val context: Context) {
 
         }
     }
-
-
 
 
     fun signOut(){

@@ -8,4 +8,4 @@ data class DutyTemplate(
 
 
 // set-up hilt, room, modify repository functionality from direct firestore to firestore - > room -> viewmodel
-// update calendar screen for bts view screen
+// update calendar screen for bts view screen, reuse some components and first display the dots for availability

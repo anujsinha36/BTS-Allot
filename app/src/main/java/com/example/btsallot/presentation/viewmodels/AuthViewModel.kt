@@ -1,5 +1,7 @@
 package com.example.btsallot.presentation.viewmodels
 
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.btsallot.data.model.Duty
@@ -16,6 +18,8 @@ class AuthViewModel(
 ): ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
+    var duties = mutableStateOf<List<Duty>>(emptyList())
+        private set
 
     fun signInWithGoogle(){
         viewModelScope.launch {
@@ -64,7 +68,14 @@ class AuthViewModel(
         viewModelScope.launch {
             repository.createTemplate(template)
         }
+    }
 
+    fun getDuties() {
+        viewModelScope.launch {
+            repository.getDuties()
+                .onSuccess { duties.value = it }
+                .onFailure { Log.e("ViewModel", "Failed to get duties", it) }
+        }
     }
 
 }

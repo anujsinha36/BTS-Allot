@@ -7,10 +7,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.btsallot.data.repository.AuthRepository
 import com.example.btsallot.presentation.viewmodels.AuthViewModel
+import java.time.LocalDate
 
 @Composable
 fun CreateDutyScreenContainer(
-    dateFromCalendar: String?,
+    dateFromCalendar: LocalDate?,
     onBackClick: () -> Unit = {},
     onSaveClick: () -> Unit = {},
     isTemplate: Boolean

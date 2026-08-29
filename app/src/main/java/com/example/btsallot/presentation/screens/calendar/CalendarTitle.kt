@@ -62,12 +62,13 @@ fun CalendarTitle(
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Medium,
         )
-        CalendarNavigationIcon(
-            icon = R.drawable.ic_chevron_right_24dp,
-            contentDescription = "Next",
-            onClick = goToNext,
-            isHorizontal = isHorizontal,
-        )
+            CalendarNavigationIcon(
+                icon = R.drawable.ic_chevron_right_24dp,
+                contentDescription = "Next",
+                onClick = goToNext,
+                isHorizontal = isHorizontal,
+            )
+
     }
 }
 

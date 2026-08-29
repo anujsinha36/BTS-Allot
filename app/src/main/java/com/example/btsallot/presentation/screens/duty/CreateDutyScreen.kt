@@ -29,10 +29,13 @@ import com.example.btsallot.presentation.designsystem.textfields.StepperTextFiel
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.BackgroundLight
 import com.example.btsallot.presentation.theme.TextPrimary
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun CreateDutyScreen(
-    dateFromCalendar: String?,
+    dateFromCalendar: LocalDate?,
     onBackClick: () -> Unit = {},
     onSaveClick: (CreateDutyResult) -> Unit = {},
     isTemplate: Boolean
@@ -48,10 +51,14 @@ fun CreateDutyScreen(
     var btsRequired by remember { mutableIntStateOf(2) }
     var notes by remember { mutableStateOf("") }
 
+    val dateFormatter = remember {
+        DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.getDefault())
+    }
+
     val isDateOrDayValid = if (isTemplate) {
         day.isNotBlank()
     } else {
-        !dateFromCalendar.isNullOrBlank()
+        dateFromCalendar != null
     }
 
     val isFormValid =
@@ -185,7 +192,7 @@ fun CreateDutyScreen(
                 .padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
             val dayLabel = if (isTemplate) "Day" else "Date"
-            val selectedDate = if (isTemplate)day else dateFromCalendar.orEmpty()
+            val selectedDate = if (isTemplate)day else dateFromCalendar?.format(dateFormatter).orEmpty()
 
             //Day-Date field
             DropdownTextField(
@@ -291,7 +298,7 @@ fun CreateDutyScreen(
                         onSaveClick(
                             CreateDutyResult.Manual(
                                 Duty(
-                                    date = dateFromCalendar!!,
+                                    date = dateFromCalendar!!.toString(),
                                     duty = form
 
                                 )
@@ -316,7 +323,7 @@ fun CreateDutyScreen(
 private fun CreateDutyScreenPreview() {
     BTSAllotTheme { CreateDutyScreen(
         isTemplate = false,
-        dateFromCalendar = "") }
+        dateFromCalendar = LocalDate.now()) }
 }
 
 
