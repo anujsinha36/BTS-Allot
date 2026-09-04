@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.btsallot.data.model.Duty
 import com.example.btsallot.data.model.DutyTemplate
 import com.example.btsallot.data.repository.AuthRepository
+import com.example.btsallot.data.room.DutyEntity
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -67,14 +68,6 @@ class AuthViewModel(
     fun createTemplate(template: DutyTemplate){
         viewModelScope.launch {
             repository.createTemplate(template)
-        }
-    }
-
-    fun getDuties() {
-        viewModelScope.launch {
-            repository.getDuties()
-                .onSuccess { duties.value = it }
-                .onFailure { Log.e("ViewModel", "Failed to get duties", it) }
         }
     }
 

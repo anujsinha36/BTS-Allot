@@ -5,7 +5,3 @@ data class DutyTemplate(
     val dayOfWeek: String = "",
     val duty: DutyForm = DutyForm()
 )
-
-
-// set-up hilt, room, modify repository functionality from direct firestore to firestore - > room -> viewmodel
-// update calendar screen for bts view screen, reuse some components and first display the dots for availability

@@ -123,7 +123,7 @@ class AuthRepository(private val context: Context) {
 
             val dutyWithID = duty.copy(id = docId)
             dutyDoc.set(dutyWithID).await()
-            Log.d("RepoDubg","duty succesful")
+            Log.d("RepoDubg","duty successful")
 
             Result.success(Unit)
         }
@@ -131,20 +131,6 @@ class AuthRepository(private val context: Context) {
             Log.e("RepoDubg",e.message.toString())
             Result.failure(e)
 
-        }
-    }
-
-    suspend fun getDuties(): Result<List<Duty>>{
-        return try {
-            val duties = firestoreDB.collection("duties")
-                .get().await().toObjects(Duty::class.java)
-            Log.d("RepoDubg","${duties}")
-            Result.success(duties)
-
-        }
-        catch (e: Exception){
-            Log.e("RepoDubg",e.message.toString())
-            Result.failure(e)
         }
     }
 

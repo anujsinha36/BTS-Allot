@@ -16,7 +16,9 @@ import com.example.btsallot.navigation.NavGraph
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

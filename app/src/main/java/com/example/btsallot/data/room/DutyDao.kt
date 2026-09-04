@@ -10,6 +10,9 @@ interface DutyDao {
     @Upsert
     suspend fun cacheDuties(duties: List<DutyEntity>)
 
+    @Query("SELECT * FROM duties")
+    fun getAllDuties(): Flow<List<DutyEntity>>
+
     @Query("SELECT * FROM duties WHERE date BETWEEN :startDate AND :endDate")
     fun observeDuties(startDate: String,endDate: String): Flow<List<DutyEntity>>
 }

@@ -8,6 +8,7 @@ import androidx.navigation.toRoute
 import com.example.btsallot.presentation.screens.home.HomeScreen
 import com.example.btsallot.presentation.screens.authenticate.LoginScreen
 import com.example.btsallot.presentation.screens.calendar.AdminCalenderScreen
+import com.example.btsallot.presentation.screens.calendar.BTSCalendarScreenContainer
 import com.example.btsallot.presentation.screens.calendar.BTSCalenderScreen
 import com.example.btsallot.presentation.screens.duty.CreateDutyScreenContainer
 import com.google.firebase.Firebase
@@ -25,7 +26,7 @@ fun NavGraph(){
     else Screens.AuthScreen
 
 
-    NavHost(navController = navController, startDestination = userScreen) {
+    NavHost(navController = navController, startDestination = Screens.BTSCalendarScreen) {
 
         composable<Screens.AuthScreen> {
             LoginScreen(
@@ -48,7 +49,7 @@ fun NavGraph(){
             )
         }
         composable<Screens.BTSCalendarScreen> {
-            BTSCalenderScreen()
+            BTSCalendarScreenContainer()
         }
 
         composable<Screens.TemplateScreen> {
