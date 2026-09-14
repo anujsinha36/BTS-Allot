@@ -16,5 +16,6 @@ export interface DutyTemplate {
 export interface Duty {
   id: string;
   date: string;
+  btsReservedCount: number;
   duty: DutyForm;
 }

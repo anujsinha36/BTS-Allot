@@ -5,15 +5,15 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val AppColorScheme = lightColorScheme(
-    primary = Indigo600,
+    primary = Blue600,
     onPrimary = SurfaceWhite,
-    primaryContainer = IndigoSurface,
-    onPrimaryContainer = Indigo700,
+    primaryContainer = BlueSurface,
+    onPrimaryContainer = Blue700,
     background = BackgroundLight,
     onBackground = TextPrimary,
     surface = SurfaceWhite,
     onSurface = TextPrimary,
-    surfaceVariant = IndigoSurface,
+    surfaceVariant = BlueSurface,
     onSurfaceVariant = TextSecondary,
     onTertiary = TextTertiary,
     onTertiaryFixed = TextFieldLabel,

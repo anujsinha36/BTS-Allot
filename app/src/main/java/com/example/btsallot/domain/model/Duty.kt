@@ -1,11 +1,7 @@
-package com.example.btsallot.data.room
+package com.example.btsallot.domain.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-
-@Entity(tableName = "duties")
-data class DutyEntity(
-    @PrimaryKey val id: String,
+data class Duty(
+    val id: String,
     val date: String,
     val meetingName: String,
     val startMinutes: Int,
@@ -14,5 +10,4 @@ data class DutyEntity(
     val btsReservedCount: Int = 0,
     val location: String,
     val notes: String?
-
 )

@@ -7,9 +7,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.btsallot.presentation.screens.home.HomeScreen
 import com.example.btsallot.presentation.screens.authenticate.LoginScreen
-import com.example.btsallot.presentation.screens.calendar.AdminCalenderScreen
+import com.example.btsallot.presentation.screens.calendar.AdminCalendarScreenContainer
 import com.example.btsallot.presentation.screens.calendar.BTSCalendarScreenContainer
-import com.example.btsallot.presentation.screens.calendar.BTSCalenderScreen
 import com.example.btsallot.presentation.screens.duty.CreateDutyScreenContainer
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -26,7 +25,7 @@ fun NavGraph(){
     else Screens.AuthScreen
 
 
-    NavHost(navController = navController, startDestination = Screens.BTSCalendarScreen) {
+    NavHost(navController = navController, startDestination = userScreen) {
 
         composable<Screens.AuthScreen> {
             LoginScreen(
@@ -43,9 +42,10 @@ fun NavGraph(){
         }
 
         composable<Screens.CalendarScreen> {
-            AdminCalenderScreen(
+            AdminCalendarScreenContainer(
                 onDateClicked = {navController.navigate(Screens.CreateDutyScreen(it.toString()))},
-                onCreateTemplate = {navController.navigate(Screens.TemplateScreen)}
+                onCreateTemplate = {navController.navigate(Screens.TemplateScreen)},
+                onBtsScreen = {navController.navigate(Screens.BTSCalendarScreen)}
             )
         }
         composable<Screens.BTSCalendarScreen> {
@@ -67,10 +67,6 @@ fun NavGraph(){
 
         composable<Screens.CreateDutyScreen> {
             val args = it.toRoute<Screens.CreateDutyScreen>()
-//            DialogSheet(date = args.date,
-//                onSave = {navController.navigate(Screens.CalendarScreen)},
-//                onCancel = {navController.navigate(Screens.CalendarScreen)}
-//                )
             CreateDutyScreenContainer(
                 dateFromCalendar = java.time.LocalDate.parse(args.date),
                 onSaveClick = {
@@ -84,5 +80,3 @@ fun NavGraph(){
         }
     }
 }
-
-

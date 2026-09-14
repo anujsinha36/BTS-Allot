@@ -28,7 +28,7 @@ import com.example.btsallot.presentation.viewmodels.AuthViewModel
 fun LoginScreen(
     onSignInSuccess: () -> Unit
 ) {
-    val context = LocalContext.current.applicationContext
+    val context = LocalContext.current
 
     val viewModel: AuthViewModel = viewModel(
         factory = object :  ViewModelProvider.Factory {
@@ -56,7 +56,7 @@ fun LoginScreen(
         when (authState) {
 
             is AuthState.Idle -> {
-                Button(onClick = { viewModel.signInWithGoogle() }) {
+                Button(onClick = { viewModel.signInWithGoogle(context) }) {
                     Text("Sign in with Google")
                 }
             }
@@ -72,7 +72,7 @@ fun LoginScreen(
                         color = MaterialTheme.colorScheme.error
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Button(onClick = { viewModel.signInWithGoogle() }) {
+                    Button(onClick = { viewModel.signInWithGoogle(context) }) {
                         Text("Try again")
                     }
                 }

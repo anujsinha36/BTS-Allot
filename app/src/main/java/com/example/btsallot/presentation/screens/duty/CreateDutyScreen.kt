@@ -13,9 +13,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.btsallot.data.model.Duty
-import com.example.btsallot.data.model.DutyForm
-import com.example.btsallot.data.model.DutyTemplate
+import com.example.btsallot.domain.model.Duty
+import com.example.btsallot.domain.model.DutyTemplate
 import com.example.btsallot.domain.utils.DutyData
 import com.example.btsallot.domain.utils.fromMinutes
 import com.example.btsallot.domain.utils.toMinutes
@@ -276,34 +275,33 @@ fun CreateDutyScreen(
 
             PrimaryButton(
                 onClick = {
-                    val form = DutyForm(
-                        meetingName = dutyName,
-                        startMinutes = startMinutes!!,
-                        endMinutes = endMinutes!!,
-                        btsRequired = btsRequired,
-                        location = location,
-                        notes = notes.takeIf { it.isNotBlank() }
-                        //if user leaves notes empty -> notes = null (as per data class)
-                        //user types notes -> notes = "text"
-                    )
                         if (isTemplate){
-                            onSaveClick(CreateDutyResult.Template(
-                                template = DutyTemplate(
-                                    dayOfWeek =day,
-                                    duty = form
-                                )
-                            ))
+                            val template = DutyTemplate(
+                                meetingName = dutyName,
+                                startMinutes = startMinutes!!,
+                                endMinutes = endMinutes!!,
+                                btsRequired = btsRequired,
+                                location = location,
+                                notes = notes.takeIf { it.isNotBlank() },
+                                id = "",
+                                dayOfWeek = day
+                            )
+                            onSaveClick(CreateDutyResult.Template(template))
                         }
                     else{
-                        onSaveClick(
-                            CreateDutyResult.Manual(
-                                Duty(
-                                    date = dateFromCalendar!!.toString(),
-                                    duty = form
-
-                                )
+                            val duty = Duty(
+                                id = "",
+                                date = dateFromCalendar!!.toString(),
+                                meetingName = dutyName,
+                                startMinutes = startMinutes!!,
+                                endMinutes = endMinutes!!,
+                                btsRequired = btsRequired,
+                                location = location,
+                                notes = notes.takeIf { it.isNotBlank() }
+                                //if user leaves notes empty -> notes = null (as per data class)
+                                //user types notes -> notes = "text"
                             )
-                        )
+                        onSaveClick(CreateDutyResult.Manual(duty))
                         }
                 },
                 enabled = isFormValid,

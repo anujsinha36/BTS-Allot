@@ -18,16 +18,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.btsallot.data.model.Duty
 import com.example.btsallot.data.room.DutyEntity
+import com.example.btsallot.domain.model.Duty
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 
 @Composable
 fun Day(day: CalendarDay,
         isSelected: Boolean,
-       // duties: List<Duty> = emptyList(),
-        duties: List<DutyEntity> = emptyList(),
+        duties: List<Duty> = emptyList(),
+       // duties: List<DutyEntity> = emptyList(),
         onClick: (CalendarDay) -> Unit){
     Box(
         modifier = Modifier

@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.btsallot.presentation.theme.BTSAllotTheme
-import com.example.btsallot.presentation.theme.Indigo600
 import com.example.btsallot.presentation.theme.SurfaceWhite
 
 @Composable
@@ -29,7 +28,7 @@ fun PrimaryButton(
             .height(52.dp),
         shape = RoundedCornerShape(14.dp),
         enabled = enabled,
-       // colors = ButtonDefaults.buttonColors(containerColor = Indigo600)
+       colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
     ) {
         Text(
             text = text,

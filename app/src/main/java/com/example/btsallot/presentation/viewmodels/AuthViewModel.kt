@@ -1,13 +1,11 @@
 package com.example.btsallot.presentation.viewmodels
 
-import android.util.Log
+import android.content.Context
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.btsallot.data.model.Duty
-import com.example.btsallot.data.model.DutyTemplate
+import com.example.btsallot.data.model.FirestoreDuty
 import com.example.btsallot.data.repository.AuthRepository
-import com.example.btsallot.data.room.DutyEntity
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,14 +17,14 @@ class AuthViewModel(
 ): ViewModel() {
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
-    var duties = mutableStateOf<List<Duty>>(emptyList())
+    var duties = mutableStateOf<List<FirestoreDuty>>(emptyList())
         private set
 
-    fun signInWithGoogle(){
+    fun signInWithGoogle(activityContext: Context){
         viewModelScope.launch {
             _authState.value = AuthState.Loading
 
-            val tokenResult = repository.getGoogleIdToken()
+            val tokenResult = repository.getGoogleIdToken(activityContext)
             if (tokenResult.isFailure){
                 val exception = tokenResult.exceptionOrNull()
                 _authState.value = AuthState.Error(
@@ -57,18 +55,6 @@ class AuthViewModel(
     fun signOutWithGoogle(){
         repository.signOut()
         _authState.value = AuthState.Idle
-    }
-
-    fun createDuty(duty: Duty){
-        viewModelScope.launch {
-            repository.createDuty(duty)
-        }
-
-    }
-    fun createTemplate(template: DutyTemplate){
-        viewModelScope.launch {
-            repository.createTemplate(template)
-        }
     }
 
 }

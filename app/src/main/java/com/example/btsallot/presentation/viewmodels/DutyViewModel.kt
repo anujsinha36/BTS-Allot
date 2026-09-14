@@ -1,11 +1,14 @@
 package com.example.btsallot.presentation.viewmodels
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.btsallot.data.DutyRepository
-import com.example.btsallot.data.room.DutyEntity
+import com.example.btsallot.domain.repository.DutyRepository
+import com.example.btsallot.domain.model.Duty
+import com.example.btsallot.domain.model.DutyTemplate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -14,13 +17,25 @@ class DutyViewModel @Inject constructor(
     private val repository: DutyRepository
 ): ViewModel(){
 
-    var duties = mutableStateOf<List<DutyEntity>>(emptyList())
-        private set
+    private val _duties = MutableStateFlow<List<Duty>>(emptyList())
+    val duties: StateFlow<List<Duty>> = _duties.asStateFlow()
 
     init{
-        syncData()
         getAllDuties()
     }
+
+    fun createDuty(duty: Duty){
+        viewModelScope.launch {
+            repository.createDuty(duty)
+        }
+    }
+
+    fun createTemplate(template: DutyTemplate){
+        viewModelScope.launch {
+            repository.createTemplate(template)
+        }
+    }
+
     fun syncData(){
         viewModelScope.launch {
             repository.syncDuties()
@@ -30,7 +45,7 @@ class DutyViewModel @Inject constructor(
     fun getAllDuties(){
         viewModelScope.launch {
             repository.getCachedDuties().collect { cachedDuties->
-                duties.value = cachedDuties
+                _duties.value = cachedDuties
             }
         }
     }

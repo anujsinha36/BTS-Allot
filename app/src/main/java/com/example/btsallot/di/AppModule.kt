@@ -2,11 +2,13 @@ package com.example.btsallot.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.btsallot.data.DutyRepository
+import com.example.btsallot.domain.repository.DutyRepository
 import com.example.btsallot.data.repository.DutyRepositoryImpl
 import com.example.btsallot.data.room.DutyDao
 import com.example.btsallot.data.room.DutyDatabase
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import dagger.Module
@@ -23,6 +25,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore = Firebase.firestore
+
+    @Provides
+    @Singleton
+    fun providesFirebaseAuth(): FirebaseAuth = Firebase.auth
 
     @Provides
     @Singleton

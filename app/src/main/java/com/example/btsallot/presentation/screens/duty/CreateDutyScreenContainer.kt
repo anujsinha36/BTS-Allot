@@ -1,12 +1,8 @@
 package com.example.btsallot.presentation.screens.duty
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.btsallot.data.repository.AuthRepository
-import com.example.btsallot.presentation.viewmodels.AuthViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.btsallot.presentation.viewmodels.DutyViewModel
 import java.time.LocalDate
 
 @Composable
@@ -16,16 +12,7 @@ fun CreateDutyScreenContainer(
     onSaveClick: () -> Unit = {},
     isTemplate: Boolean
 ){
-    val context = LocalContext.current.applicationContext
-    val viewModel: AuthViewModel = viewModel(
-        factory = object :  ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return AuthViewModel(
-                    repository = AuthRepository(context)
-                ) as T
-            }
-        }
-    )
+    val viewModel: DutyViewModel = hiltViewModel()
 
     CreateDutyScreen(
         dateFromCalendar = dateFromCalendar,
@@ -39,7 +26,7 @@ fun CreateDutyScreenContainer(
                     viewModel.createTemplate(result.template)
                 }
             }
-            onSaveClick ()
+            onSaveClick () // this is called to continue with another action within Navgraph after viewmodel work
                       },
         isTemplate = isTemplate
     )

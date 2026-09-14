@@ -2,41 +2,36 @@ package com.example.btsallot.data.repository
 
 
 import android.content.Context
-import android.util.Log
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import com.example.btsallot.R
-import com.example.btsallot.data.model.Duty
-import com.example.btsallot.data.model.DutyTemplate
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential.Companion.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthCredential
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.auth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 import kotlin.collections.hashMapOf
-import kotlin.math.sqrt
 
-class AuthRepository(private val context: Context) {
+class AuthRepository(context: Context) {
+    private val appContext = context.applicationContext
     private val auth = Firebase.auth
     private val firestoreDB = Firebase.firestore
-    private val credentialManager = CredentialManager.create(context)
+    private val credentialManager = CredentialManager.create(appContext)
 
     // Job 1: Get ID token from Google
-    suspend fun getGoogleIdToken(): Result<String>{
+    suspend fun getGoogleIdToken(activityContext: Context): Result<String>{
 
         return try {
 
             // Tell Credential Manager we want a Google sign in
             val googleIdOption = GetGoogleIdOption.Builder()
-                .setServerClientId(context.getString(R.string.default_web_client_id))
+                .setServerClientId(appContext.getString(R.string.default_web_client_id))
                 .setFilterByAuthorizedAccounts(false)
                 .build()
 
@@ -47,7 +42,7 @@ class AuthRepository(private val context: Context) {
 
             // This line actually shows the Google account picker to the user
             // and suspends (waits) until the user picks an account
-            val result = credentialManager.getCredential(context,request)
+            val result = credentialManager.getCredential(activityContext,request)
             val credential = result.credential
 
             // Check we got the right type of credential
@@ -115,42 +110,6 @@ class AuthRepository(private val context: Context) {
        }
     }
 
-    suspend fun createDuty(duty: Duty): Result<Unit>{
-        return try {
-            val docId = "${duty.date}_${duty.duty.meetingName.replace(" ","_")}"
-
-            val dutyDoc = firestoreDB.collection("duties").document(docId)
-
-            val dutyWithID = duty.copy(id = docId)
-            dutyDoc.set(dutyWithID).await()
-            Log.d("RepoDubg","duty successful")
-
-            Result.success(Unit)
-        }
-        catch (e: Exception){
-            Log.e("RepoDubg",e.message.toString())
-            Result.failure(e)
-
-        }
-    }
-
-    suspend fun createTemplate(template: DutyTemplate): Result<Unit>{
-        return try {
-            val templateDoc = firestoreDB.collection("templates").document()
-
-            //put a check here with date and title to avoid duplicate creation
-            val templateWithID = template.copy(id = templateDoc.id)
-            templateDoc.set(templateWithID).await()
-            Log.d("RepoDubg","template successfully created")
-
-            Result.success(Unit)
-        }
-        catch (e: Exception){
-            Log.e("RepoDubg",e.message.toString())
-            Result.failure(e)
-
-        }
-    }
 
 
     fun signOut(){

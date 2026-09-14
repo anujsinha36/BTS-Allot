@@ -3,12 +3,13 @@ package com.example.btsallot.presentation.theme
 import androidx.compose.ui.graphics.Color
 
 // Brand
-val Indigo600 = Color(0xFF4F46E5)
-val Indigo700 = Color(0xFF4338CA)
+val Blue600 = Color(0xFF2563EB)
+val Blue700 = Color(0xFF1D4ED8)
+val BlueLight = Color(0xFFDBEAFE)
 
 
-val IndigoSurface = Color(0xFFF2F1FF)
-val IndigoIconBackground = Color(0xFFEEECFF)
+val BlueSurface = Color(0xFFEFF6FF)
+val BlueIconBackground = Color(0xFFDBEAFE)
 
 // Surfaces
 val BackgroundLight = Color(0xFFF9FAFE)
@@ -28,14 +29,14 @@ val TextFieldText = Color(0xFF94A3B8)
 val BorderLight = Color(0xFFE2E8F0)
 
 // Calendar / duty status dots
-val StatusAvailable = Color(0xFF3B82F6) // blue
+val StatusAvailable = Blue600 // blue
 val StatusApplied = Color(0xFFF59E0B)   // orange
 val StatusAssigned = Color(0xFF10B981)  // green
-val StatusFull = Color(0xFF9CA3AF)      // gray
+val StatusFull = Color(0xFFFF3333)      // gray
 
 // Chips
-val AvailableBadgeBg = Color(0xFFE9F3FF)
-val AvailableBadgeText = Color(0xFF3B82F6)
+val AvailableBadgeBg = Color(0xFFEFF6FF)
+val AvailableBadgeText = Blue600
 
 val PositionsAvailableBg = Color(0xFFE3F8EC)
 val PositionsAvailableText = Color(0xFF10B981)
