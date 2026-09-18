@@ -29,11 +29,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.btsallot.domain.model.Duty
+import com.example.btsallot.domain.utils.fromMinutes
 import com.example.btsallot.presentation.designsystem.buttons.LegendDot
 import com.example.btsallot.presentation.designsystem.calendar.Day
 import com.example.btsallot.presentation.designsystem.calendar.DaysOfWeekTitle
@@ -42,7 +42,6 @@ import com.example.btsallot.presentation.theme.Blue600
 import com.example.btsallot.presentation.theme.BlueLight
 import com.example.btsallot.presentation.theme.FullText
 import com.example.btsallot.presentation.theme.StatusApplied
-import com.example.btsallot.presentation.theme.StatusAssigned
 import com.example.btsallot.presentation.theme.StatusAvailable
 import com.example.btsallot.presentation.theme.StatusFull
 import com.example.btsallot.presentation.theme.SurfaceWhite
@@ -65,8 +64,7 @@ import java.util.Locale
 fun BTSCalenderScreen(
     duties: List<Duty>,
     onDateClicked: (LocalDate) -> Unit = {},
-    onCreateTemplate: ()-> Unit = {},
-   // isDutyAvailable: Boolean
+    onDutyApplyClicked: (Duty) -> Unit ={}
 ){
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(6) }
@@ -148,7 +146,7 @@ fun BTSCalenderScreen(
          selectedDate.value?.let{
             if (selectedDateDuties.isNotEmpty()){
                 selectedDateDuties.forEach { duty->
-                    DutyListCard(duty = duty, onApplyClick = {}
+                    DutyListCard(duty = duty, onDutyApplyClick = {onDutyApplyClicked(duty)}
                     )
                 }
             }
@@ -184,7 +182,7 @@ private fun LegendRow() {
 
 @Composable
 fun DutyListCard(duty: Duty,
-                 onApplyClick: (Duty) -> Unit,
+                 onDutyApplyClick: (Duty) -> Unit,
                  modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -214,8 +212,10 @@ fun DutyListCard(duty: Duty,
             }
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
+                val startTime = duty.startMinutes
+                val endTime = duty.endMinutes
                 Text(
-                    text = "${duty.startMinutes} - ${duty.endMinutes}",
+                    text = "${fromMinutes(startTime)} - ${fromMinutes(endTime)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = TextTertiary
                 )
@@ -254,7 +254,7 @@ fun DutyListCard(duty: Duty,
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Button(
-                        onClick = { onApplyClick(duty) },
+                        onClick = { onDutyApplyClick(duty) },
                         shape = RoundedCornerShape(10.dp),
                        // colors = ButtonDefaults.buttonColors(containerColor = Indigo600),
                         contentPadding = PaddingValues(horizontal = 18.dp, vertical = 6.dp),
@@ -268,21 +268,17 @@ fun DutyListCard(duty: Duty,
     }
 }
 
-enum class DutyStatus { AVAILABLE, APPLIED, ASSIGNED, FULL }
-
-
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewBTSCalenderScreen(){
     BTSAllotTheme {
         BTSCalenderScreen(
             duties = emptyList(),
-           // isDutyAvailable = true
         )
     }
 }
 
 
-//update duty start-end time format for UI. Change on clicked date's selection color in Day File
-// onClick of DutyCard handles Apply->Create Duty Application Class
+// provide logic for updating BTSReservedCount based on Application:
+// Might need to create a update function in repository to update duty collection's paramter BTSReserved
+//best approach if we have same viewmodel across multiple screens?

@@ -9,7 +9,6 @@ import java.time.LocalDate
 fun AdminCalendarScreenContainer(
     onDateClicked: (LocalDate) -> Unit = {},
     onCreateTemplate: ()-> Unit = {},
-  //  onSync: () -> Unit = {},
     onBtsScreen: () -> Unit = {}
 ){
     val viewModel: DutyViewModel = hiltViewModel()

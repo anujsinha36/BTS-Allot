@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.btsallot.domain.repository.DutyRepository
 import com.example.btsallot.domain.model.Duty
+import com.example.btsallot.domain.model.DutyApplication
 import com.example.btsallot.domain.model.DutyTemplate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,9 +45,15 @@ class DutyViewModel @Inject constructor(
 
     fun getAllDuties(){
         viewModelScope.launch {
-            repository.getCachedDuties().collect { cachedDuties->
+            repository.getAllDuties().collect { cachedDuties->
                 _duties.value = cachedDuties
             }
+        }
+    }
+
+    fun createApplication(application: DutyApplication){
+        viewModelScope.launch {
+            repository.createDutyApplication(application)
         }
     }
 }

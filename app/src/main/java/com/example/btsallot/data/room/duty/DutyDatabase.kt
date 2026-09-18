@@ -1,4 +1,4 @@
-package com.example.btsallot.data.room
+package com.example.btsallot.data.room.duty
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

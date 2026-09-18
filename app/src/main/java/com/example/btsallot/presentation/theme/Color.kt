@@ -32,7 +32,7 @@ val BorderLight = Color(0xFFE2E8F0)
 val StatusAvailable = Blue600 // blue
 val StatusApplied = Color(0xFFF59E0B)   // orange
 val StatusAssigned = Color(0xFF10B981)  // green
-val StatusFull = Color(0xFFFF3333)      // gray
+val StatusFull = Color(0xFF9CA3AF)      // gray
 
 // Chips
 val AvailableBadgeBg = Color(0xFFEFF6FF)

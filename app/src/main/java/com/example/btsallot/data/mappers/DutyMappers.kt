@@ -2,10 +2,14 @@ package com.example.btsallot.data.mappers
 
 import com.example.btsallot.data.model.DutyForm
 import com.example.btsallot.data.model.FirestoreDuty
+import com.example.btsallot.data.model.FirestoreDutyApplication
 import com.example.btsallot.data.model.FirestoreDutyTemplate
-import com.example.btsallot.data.room.DutyEntity
+import com.example.btsallot.data.model.FirestoreUser
+import com.example.btsallot.data.room.duty.DutyEntity
 import com.example.btsallot.domain.model.Duty
+import com.example.btsallot.domain.model.DutyApplication
 import com.example.btsallot.domain.model.DutyTemplate
+import com.example.btsallot.domain.model.User
 
 fun FirestoreDuty.toEntity() = DutyEntity(
     id = id,
@@ -56,4 +60,18 @@ fun DutyTemplate.toFirestoreDutyTemplate() = FirestoreDutyTemplate(
         location = location,
         notes = notes
     )
+)
+
+fun DutyApplication.toFirestoreDutyApplication()= FirestoreDutyApplication(
+    dutyId = dutyId,
+    userID = userId,
+    userName = userName
+)
+
+fun FirestoreUser.toDomainUser() = User(
+    uid = uid,
+    name = name,
+    email = email,
+    role = role,
+    photoUrl = photoUrl
 )

@@ -1,6 +1,7 @@
 package com.example.btsallot.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -10,6 +11,7 @@ import com.example.btsallot.presentation.screens.authenticate.LoginScreen
 import com.example.btsallot.presentation.screens.calendar.AdminCalendarScreenContainer
 import com.example.btsallot.presentation.screens.calendar.BTSCalendarScreenContainer
 import com.example.btsallot.presentation.screens.duty.CreateDutyScreenContainer
+import com.example.btsallot.presentation.viewmodels.AuthViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 
@@ -17,15 +19,16 @@ import com.google.firebase.auth.auth
 @Composable
 fun NavGraph(){
     val navController = rememberNavController()
-    val auth = Firebase.auth.currentUser
+    val authCurrentUser = Firebase.auth.currentUser
+    val authViewModel: AuthViewModel = hiltViewModel()
 
-    val userScreen = if (auth != null){
+    val firstScreen = if (authCurrentUser != null){
         Screens.CalendarScreen
     }
     else Screens.AuthScreen
 
 
-    NavHost(navController = navController, startDestination = userScreen) {
+    NavHost(navController = navController, startDestination = firstScreen) {
 
         composable<Screens.AuthScreen> {
             LoginScreen(
@@ -33,7 +36,8 @@ fun NavGraph(){
                     popUpTo(Screens.AuthScreen) {
                         inclusive = true
                     }
-                } }
+                } },
+                viewModel = authViewModel
             )
         }
 
@@ -49,7 +53,9 @@ fun NavGraph(){
             )
         }
         composable<Screens.BTSCalendarScreen> {
-            BTSCalendarScreenContainer()
+            BTSCalendarScreenContainer(
+                authViewModel = authViewModel
+            )
         }
 
         composable<Screens.TemplateScreen> {
@@ -80,3 +86,6 @@ fun NavGraph(){
         }
     }
 }
+
+
+//currentUser is already here in Navgraph, do we also need to call in BTSContainer

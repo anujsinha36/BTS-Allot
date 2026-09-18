@@ -1,4 +1,4 @@
-package com.example.btsallot.data.room
+package com.example.btsallot.data.room.duty
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

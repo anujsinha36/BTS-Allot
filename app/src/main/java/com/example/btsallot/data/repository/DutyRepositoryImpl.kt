@@ -4,11 +4,13 @@ import android.util.Log
 import com.example.btsallot.data.mappers.toDomainDuty
 import com.example.btsallot.data.mappers.toEntity
 import com.example.btsallot.data.mappers.toFireStoreDuty
+import com.example.btsallot.data.mappers.toFirestoreDutyApplication
 import com.example.btsallot.data.mappers.toFirestoreDutyTemplate
 import com.example.btsallot.domain.repository.DutyRepository
 import com.example.btsallot.data.model.FirestoreDuty
-import com.example.btsallot.data.room.DutyDao
+import com.example.btsallot.data.room.duty.DutyDao
 import com.example.btsallot.domain.model.Duty
+import com.example.btsallot.domain.model.DutyApplication
 import com.example.btsallot.domain.model.DutyTemplate
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
@@ -30,9 +32,7 @@ class DutyRepositoryImpl @Inject constructor(
 
             val dutyWithID = duty.copy(id = docId).toFireStoreDuty()
             dutyDoc.set(dutyWithID).await()
-//            // The calendar observes Room, so keep its source of truth current as
-//            // soon as a duty has been saved remotely.
-//            dutyDao.cacheDuties(listOf(duty.copy(id = docId).toEntity()))
+
             Log.d("RepoDubg","duty successful")
 
             Result.success(Unit)
@@ -40,7 +40,6 @@ class DutyRepositoryImpl @Inject constructor(
         catch (e: Exception){
             Log.e("RepoDubg",e.message.toString())
             Result.failure(e)
-
         }
     }
 
@@ -77,7 +76,7 @@ class DutyRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getCachedDuties(): Flow<List<Duty>> {
+    override fun getAllDuties(): Flow<List<Duty>> {
         return dutyDao.getAllDuties().map { entities ->
             entities.map { it.toDomainDuty() }
         }
@@ -87,6 +86,21 @@ class DutyRepositoryImpl @Inject constructor(
     ): Flow<List<Duty>> {
         return  dutyDao.observeDuties(start,end).map { entities ->
             entities.map { it.toDomainDuty() }
+        }
+    }
+
+    override suspend fun createDutyApplication(application: DutyApplication): Result<Unit> {
+        return try {
+            val applicationID = "${application.dutyId}_${application.userName.replace(" ", "_")}"
+            val applicationDoc = firestoreDB.collection("applications").document(applicationID)
+
+            val applicationToFirestore = application.toFirestoreDutyApplication()
+            applicationDoc.set(applicationToFirestore).await()
+            Result.success(Unit)
+        }
+        catch (e: Exception){
+            Log.e("RepoDubg",e.message.toString())
+            Result.failure(e)
         }
     }
 

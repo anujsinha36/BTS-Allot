@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -18,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.btsallot.data.room.DutyEntity
 import com.example.btsallot.domain.model.Duty
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
@@ -32,8 +32,10 @@ fun Day(day: CalendarDay,
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .padding(6.dp)
-            .background(color = if (isSelected) Color.Yellow else Color.Transparent)
+            .padding(4.dp)
+            .clip(CircleShape)
+            .background(color = if (isSelected) MaterialTheme.colorScheme.primary.copy(0.9f)
+            else Color.Transparent)
             .clickable(
                 enabled = day.position == DayPosition.MonthDate, // Only month-dates are clickable
                 onClick = { onClick(day) },
@@ -45,7 +47,7 @@ fun Day(day: CalendarDay,
             verticalArrangement = Arrangement.Center) {
             val textColor = when (day.position) {
                 // Color.Unspecified will use the default text color from the current theme
-                DayPosition.MonthDate -> if (isSelected) Color.Black else Color.Unspecified
+                DayPosition.MonthDate -> if (isSelected) Color.White else Color.Unspecified
                 DayPosition.InDate, DayPosition.OutDate -> Color.Gray
             }
 
