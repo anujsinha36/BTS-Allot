@@ -19,15 +19,17 @@ fun BTSCalendarScreenContainer(
 ){
     val dutyViewModel: DutyViewModel = hiltViewModel()
     val duties by dutyViewModel.duties.collectAsStateWithLifecycle()
+    val appliedDutyIds by dutyViewModel.dutyID.collectAsStateWithLifecycle()
 
-   // val authViewModel: AuthViewModel = hiltViewModel()
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
 
 
+
     // Render cached data immediately, then refresh it when this calendar opens.
-    LaunchedEffect(Unit) {
-       // viewModel.syncData()
-       // authViewModel.loadUser()
+    LaunchedEffect(authState) {
+        (authState as? AuthState.Success)?.let {
+            dutyViewModel.getAppliedDutyId(it.user.uid)
+        }
     }
 
     (authState as? AuthState.Success)?.let { it->
@@ -44,9 +46,10 @@ fun BTSCalendarScreenContainer(
                 )
                 dutyViewModel.createApplication(application)
 
-            }
+            }, appliedDutyId = appliedDutyIds
         )
     }
+
 
 
 }

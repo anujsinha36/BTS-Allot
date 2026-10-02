@@ -5,6 +5,7 @@ import com.example.btsallot.data.model.FirestoreDuty
 import com.example.btsallot.data.model.FirestoreDutyApplication
 import com.example.btsallot.data.model.FirestoreDutyTemplate
 import com.example.btsallot.data.model.FirestoreUser
+import com.example.btsallot.data.room.application.DutyApplicationEntity
 import com.example.btsallot.data.room.duty.DutyEntity
 import com.example.btsallot.domain.model.Duty
 import com.example.btsallot.domain.model.DutyApplication
@@ -49,6 +50,18 @@ fun Duty.toFireStoreDuty() = FirestoreDuty(
     )
 )
 
+fun Duty.toEntity() = DutyEntity(
+    id = id,
+    date = date,
+    meetingName = meetingName,
+    startMinutes = startMinutes,
+    endMinutes = endMinutes,
+    btsRequired = btsRequired,
+    btsReservedCount = btsReservedCount,
+    location = location,
+    notes = notes
+)
+
 fun DutyTemplate.toFirestoreDutyTemplate() = FirestoreDutyTemplate(
     id = id,
     dayOfWeek = dayOfWeek,
@@ -65,6 +78,20 @@ fun DutyTemplate.toFirestoreDutyTemplate() = FirestoreDutyTemplate(
 fun DutyApplication.toFirestoreDutyApplication()= FirestoreDutyApplication(
     dutyId = dutyId,
     userID = userId,
+    userName = userName
+)
+
+fun FirestoreDutyApplication.toDutyApplicationEntity(id: String)= DutyApplicationEntity(
+    id = id,
+    dutyId = dutyId,
+    userId = userID,
+    userName = userName
+)
+
+fun DutyApplication.toDutyApplicationEntity(id: String)= DutyApplicationEntity(
+    id = id,
+    dutyId = dutyId,
+    userId = userId,
     userName = userName
 )
 

@@ -27,7 +27,7 @@ import com.kizitonwose.calendar.core.DayPosition
 fun Day(day: CalendarDay,
         isSelected: Boolean,
         duties: List<Duty> = emptyList(),
-       // duties: List<DutyEntity> = emptyList(),
+        color: Color,
         onClick: (CalendarDay) -> Unit){
     Box(
         modifier = Modifier
@@ -58,10 +58,12 @@ fun Day(day: CalendarDay,
             Spacer(modifier = Modifier.height(5.dp))
 
             Box(modifier = Modifier.size(8.dp).clip(CircleShape)
-                .background(if (duties.isNotEmpty()) Color.Blue else Color.Transparent)
+                .background(color)
             )
 
-
+//hasduty = yellow else blue
+            // bts == btsdone -> full
+            //else -> transparent
 
         }
     }

@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.example.btsallot.data.repository.AuthRepositoryImpl
 import com.example.btsallot.domain.repository.DutyRepository
 import com.example.btsallot.data.repository.DutyRepositoryImpl
+import com.example.btsallot.data.room.application.ApplicationDao
 import com.example.btsallot.data.room.duty.DutyDao
 import com.example.btsallot.data.room.duty.DutyDatabase
 import com.example.btsallot.domain.repository.AuthRepository
@@ -46,22 +47,29 @@ object AppModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): DutyDatabase{
         return Room.databaseBuilder(
-            context = context,
-            klass = DutyDatabase::class.java,
-            name = "duties"
-        ).build()
+                context = context,
+                klass = DutyDatabase::class.java,
+                name = "duties", // name of complete db in phone storage
+            ).fallbackToDestructiveMigration(true) //  to avoid crashes on schema changes
+            .build()
     }
 
     @Provides
     @Singleton
-    fun provideDao(database: DutyDatabase): DutyDao{
+    fun provideDutyDao(database: DutyDatabase): DutyDao{
         return database.dutyDao()
     }
 
     @Provides
     @Singleton
-    fun provideDutyRepository(dutyDao: DutyDao, firebaseDB: FirebaseFirestore): DutyRepository{
-        return DutyRepositoryImpl(dutyDao,firebaseDB)
+    fun provideApplicationDao(database: DutyDatabase): ApplicationDao{
+        return database.applicationDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDutyRepository(dutyDao: DutyDao, firebaseDB: FirebaseFirestore, applicationDao: ApplicationDao): DutyRepository{
+        return DutyRepositoryImpl(dutyDao = dutyDao, firestoreDB = firebaseDB, applicationDao = applicationDao)
     }
 
 }

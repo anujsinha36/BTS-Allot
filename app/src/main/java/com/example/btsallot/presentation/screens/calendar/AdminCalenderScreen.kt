@@ -87,10 +87,12 @@ fun AdminCalenderScreen(
         HorizontalCalendar(
             state = state,
             dayContent = {day->
-                Day(day, selectedDate.value == day, onClick = {clicked->
+                Day(day, selectedDate.value == day,
+                    onClick = {clicked->
                     selectedDate.value = clicked
                     onDateClicked(clicked.date)
-                })
+                }, color = Color.Transparent
+                )
              },
             monthHeader = {
                 DaysOfWeekTitle(daysOfWeek)

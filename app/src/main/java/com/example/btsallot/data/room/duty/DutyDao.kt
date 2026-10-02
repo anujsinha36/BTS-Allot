@@ -13,6 +13,9 @@ interface DutyDao {
     @Query("SELECT * FROM duties")
     fun getAllDuties(): Flow<List<DutyEntity>>
 
+    @Query("SELECT * FROM duties WHERE id = :dutyId LIMIT 1")
+    suspend fun getDutyById(dutyId: String): DutyEntity?
+
     @Query("SELECT * FROM duties WHERE date BETWEEN :startDate AND :endDate")
     fun observeDuties(startDate: String,endDate: String): Flow<List<DutyEntity>>
 }

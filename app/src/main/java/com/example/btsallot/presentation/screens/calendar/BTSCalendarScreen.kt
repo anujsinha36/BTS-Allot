@@ -29,10 +29,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.btsallot.domain.model.Duty
+import com.example.btsallot.domain.model.DutyApplication
 import com.example.btsallot.domain.utils.fromMinutes
 import com.example.btsallot.presentation.designsystem.buttons.LegendDot
 import com.example.btsallot.presentation.designsystem.calendar.Day
@@ -64,6 +66,7 @@ import java.util.Locale
 fun BTSCalenderScreen(
     duties: List<Duty>,
     onDateClicked: (LocalDate) -> Unit = {},
+    appliedDutyId: Set<String>,
     onDutyApplyClicked: (Duty) -> Unit ={}
 ){
     val currentMonth = remember { YearMonth.now() }
@@ -97,10 +100,11 @@ fun BTSCalenderScreen(
 
 
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(MaterialTheme.colorScheme.background)
-        .padding(horizontal = 10.dp),
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 10.dp),
     ){
 
         Spacer(modifier = Modifier.padding(vertical = 40.dp))
@@ -124,12 +128,26 @@ fun BTSCalenderScreen(
             state = state,
             dayContent = {day->
                 val dayDuties = dutiesByDate[day.date.toString()] ?: emptyList()
+                val dayColor = when {
+                    // 1. If there are no duties at all
+                    dayDuties.isEmpty() -> Color.Transparent
+
+                    // 2. If the user has applied to ANY duty on this day (High Priority)
+                    dayDuties.any { appliedDutyId.contains(it.id) } -> StatusApplied
+
+                    // 3. If ALL duties for the day are full
+                    dayDuties.all { it.btsReservedCount >= it.btsRequired } -> StatusFull
+
+                    // 4. Otherwise, duties are available (hasDuty = true)
+                    else -> StatusAvailable
+                }
                 Day(day, selectedDate.value == day,
                     duties = dayDuties,
                     onClick = {clicked->
                     selectedDate.value = clicked
                     onDateClicked(clicked.date)
-                    })
+                    },
+                    color = dayColor    )
             },
             monthHeader = {
                 DaysOfWeekTitle(daysOfWeek)
@@ -139,24 +157,26 @@ fun BTSCalenderScreen(
         LegendRow()
         Spacer(modifier = Modifier.padding(vertical = 20.dp))
 
-        val selectedDateDuties = selectedDate.value?.let { clicked->
-            dutiesByDate[clicked.date.toString()]
-        }?: emptyList()
+        selectedDate.value?.let { clicked ->
+            val selectedDateDuties = dutiesByDate[clicked.date.toString()]
 
-         selectedDate.value?.let{
-            if (selectedDateDuties.isNotEmpty()){
-                selectedDateDuties.forEach { duty->
-                    DutyListCard(duty = duty, onDutyApplyClick = {onDutyApplyClicked(duty)}
+            if (selectedDateDuties.isNullOrEmpty()) {
+                Text(
+                    text = "No duties on this date",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Blue600
+                )
+            } else {
+                selectedDateDuties.forEach { duty ->
+                    DutyListCard(
+                        duty = duty,
+                        onDutyApplyClick = { onDutyApplyClicked(duty) },
+                        appliedDutyId = appliedDutyId
                     )
                 }
             }
-            else{
-                Text(
-                    text = "No duties on this date",
-                    style = MaterialTheme.typography.labelMedium, color = Blue600
-                )
-            }
         }
+
     }
 }
 
@@ -169,7 +189,9 @@ private fun LegendRow() {
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 22.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             LegendDot(StatusAvailable, "Available")
@@ -183,6 +205,7 @@ private fun LegendRow() {
 @Composable
 fun DutyListCard(duty: Duty,
                  onDutyApplyClick: (Duty) -> Unit,
+                 appliedDutyId: Set<String>,
                  modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -233,34 +256,31 @@ fun DutyListCard(duty: Duty,
                 )
             }
             Column(horizontalAlignment = Alignment.End) {
-                val status = duty.btsRequired - duty.btsReservedCount
-                if (status < 1) {
+                Column(horizontalAlignment = Alignment.End) {
+                    val isFull = duty.btsReservedCount >= duty.btsRequired
+                    val hasApplied = appliedDutyId.contains(duty.id)
+                    val statusColor = if (isFull) FullText else Blue600
+
                     Text(
                         text = "${duty.btsReservedCount}/${duty.btsRequired}",
                         style = MaterialTheme.typography.labelMedium,
-                        color = FullText
-                    )
-                    Text(text = "filled", style = MaterialTheme.typography.bodySmall, color = FullText)
-                } else {
-                    Text(
-                        text = "${duty.btsReservedCount}/${duty.btsRequired}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Blue600
+                        color = statusColor
                     )
                     Text(
                         text = "filled",
                         style = MaterialTheme.typography.bodySmall,
-                        color = Blue600
+                        color = statusColor
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Button(
                         onClick = { onDutyApplyClick(duty) },
                         shape = RoundedCornerShape(10.dp),
-                       // colors = ButtonDefaults.buttonColors(containerColor = Indigo600),
+                        enabled = !hasApplied && !isFull,
                         contentPadding = PaddingValues(horizontal = 18.dp, vertical = 6.dp),
                         modifier = Modifier.height(32.dp)
                     ) {
-                        Text("Apply", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
+                        val text = if (hasApplied) "Applied" else "Apply"
+                        Text(text, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -274,11 +294,11 @@ fun PreviewBTSCalenderScreen(){
     BTSAllotTheme {
         BTSCalenderScreen(
             duties = emptyList(),
+            appliedDutyId = mutableSetOf()
         )
     }
 }
 
 
-// provide logic for updating BTSReservedCount based on Application:
-// Might need to create a update function in repository to update duty collection's paramter BTSReserved
+//after duty is full and screen syncs, applied button disappears
 //best approach if we have same viewmodel across multiple screens?
