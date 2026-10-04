@@ -1,6 +1,7 @@
 package com.example.btsallot.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -17,16 +18,24 @@ import com.google.firebase.auth.auth
 
 
 @Composable
-fun NavGraph(){
+fun NavGraph(destination : String? = null){
     val navController = rememberNavController()
     val authCurrentUser = Firebase.auth.currentUser
     val authViewModel: AuthViewModel = hiltViewModel()
 
     val firstScreen = if (authCurrentUser != null){
-        Screens.CalendarScreen
+        if (destination == "calendar") Screens.BTSCalendarScreen else Screens.CalendarScreen
     }
     else Screens.AuthScreen
 
+    // Automatically navigate to BTSCalendarScreen if notification was tapped while app was running
+    LaunchedEffect(destination) {
+        if (authCurrentUser != null && destination == "calendar") {
+            navController.navigate(Screens.BTSCalendarScreen) {
+                popUpTo(Screens.CalendarScreen) { inclusive = false }
+            }
+        }
+    }
 
     NavHost(navController = navController, startDestination = firstScreen) {
 

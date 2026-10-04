@@ -18,4 +18,5 @@ export interface Duty {
   date: string;
   btsReservedCount: number;
   duty: DutyForm;
+  isBatch?: boolean; // Flag to identify duties created in a monthly batch}
 }

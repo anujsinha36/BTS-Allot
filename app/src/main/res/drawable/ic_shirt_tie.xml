@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Blue rounded-square background -->
+    <path
+        android:fillColor="#1769E0"
+        android:pathData="M20,0 L88,0 C99,0 108,9 108,20 L108,88 C108,99 99,108 88,108 L20,108 C9,108 0,99 0,88 L0,20 C0,9 9,0 20,0 Z"/>
+
+    <!-- White shirt body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M27,31 L43,24 L54,31 L65,24 L81,31 L88,39 L83,87 C82.5,91 79,94 75,94 L33,94 C29,94 25.5,91 25,87 L20,39 Z"/>
+
+    <!-- Left collar -->
+    <path
+        android:fillColor="#F2F5FA"
+        android:pathData="M43,24 L54,31 L47,46 L37,35 Z"/>
+
+    <!-- Right collar -->
+    <path
+        android:fillColor="#E7ECF5"
+        android:pathData="M65,24 L54,31 L61,46 L71,35 Z"/>
+
+    <!-- Blue tie knot -->
+    <path
+        android:fillColor="#1557C0"
+        android:pathData="M49,43 L54,38 L59,43 L58,51 L54,55 L50,51 Z"/>
+
+    <!-- Blue tie -->
+    <path
+        android:fillColor="#1769E0"
+        android:pathData="M50,50 L58,50 L62,84 L54,92 L46,84 Z"/>
+
+    <!-- Tie highlight -->
+    <path
+        android:fillColor="#4B8FF5"
+        android:pathData="M51,52 L55,50 L58,77 L54,81 Z"/>
+
+    <!-- Shirt pocket -->
+    <path
+        android:fillColor="#F2F5FA"
+        android:pathData="M67,62 L80,62 L80,76 C80,78 78,80 76,80 L67,80 Z"/>
+</vector>

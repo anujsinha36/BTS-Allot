@@ -300,5 +300,5 @@ fun PreviewBTSCalenderScreen(){
 }
 
 
-//after duty is full and screen syncs, applied button disappears
+// duty card appears for previous month when scrolling to next month
 //best approach if we have same viewmodel across multiple screens?
