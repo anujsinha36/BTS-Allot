@@ -180,6 +180,7 @@ class DutyRepositoryImpl @Inject constructor(
 
     override fun listenToUserApplications(userId: String): Flow<List<DutyApplication>> = callbackFlow {
         val applicationListenerRegistration = firestoreDB.collection("applications")
+            .whereEqualTo("userID", userId)
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null){
                     close(exception)

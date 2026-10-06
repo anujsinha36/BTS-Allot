@@ -3,6 +3,7 @@ package com.example.btsallot.presentation.screens.calendar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.text.toUpperCase
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.btsallot.domain.model.DutyApplication
@@ -34,10 +35,13 @@ fun BTSCalendarScreenContainer(
 
     (authState as? AuthState.Success)?.let { it->
         val currentUser = it.user
+        val firstName = currentUser.name.substringBefore(" ")
+            .lowercase().replaceFirstChar { it.uppercase() }
 
         BTSCalenderScreen(
             duties = duties,
             onDateClicked = onDateClicked,
+            user = firstName,
             onDutyApplyClicked = {duty ->
                 val application = DutyApplication(
                     dutyId = duty.id,

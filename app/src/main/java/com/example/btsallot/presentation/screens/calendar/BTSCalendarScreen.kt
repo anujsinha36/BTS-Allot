@@ -33,8 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.btsallot.domain.model.Duty
-import com.example.btsallot.domain.model.DutyApplication
 import com.example.btsallot.domain.utils.fromMinutes
 import com.example.btsallot.presentation.designsystem.buttons.LegendDot
 import com.example.btsallot.presentation.designsystem.calendar.Day
@@ -65,6 +65,7 @@ import java.util.Locale
 @Composable
 fun BTSCalenderScreen(
     duties: List<Duty>,
+    user: String,
     onDateClicked: (LocalDate) -> Unit = {},
     appliedDutyId: Set<String>,
     onDutyApplyClicked: (Duty) -> Unit ={}
@@ -104,13 +105,26 @@ fun BTSCalenderScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 10.dp),
+            .padding(horizontal = 15.dp),
     ){
+        Spacer(modifier = Modifier.padding(vertical = 30.dp))
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp)) {
+            Text(
+                text = "Hello, $user \uD83D\uDC4B",
+                style = MaterialTheme.typography.titleMedium,
+                fontSize = 18.sp
+            )
+            Spacer(modifier = Modifier.padding(vertical = 2.dp))
+            Text(text = "Let's make this month count.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onTertiaryFixed
+            )
+        }
 
-        Spacer(modifier = Modifier.padding(vertical = 40.dp))
+        Spacer(modifier = Modifier.padding(vertical = 5.dp))
         CalendarTitle(
             currentMonth = visibleMonth.yearMonth,
-            modifier = Modifier.padding(vertical = 10.dp, horizontal = 8.dp),
+            modifier = Modifier.padding(vertical = 10.dp, horizontal = 3.dp),
             goToPrevious = {
                 coroutineScope.launch {
                     state.animateScrollToMonth(visibleMonth.yearMonth.previousMonth)
@@ -125,6 +139,7 @@ fun BTSCalenderScreen(
         )
 
         HorizontalCalendar(
+            modifier = Modifier.padding(horizontal = 8.dp),
             state = state,
             dayContent = {day->
                 val dayDuties = dutiesByDate[day.date.toString()] ?: emptyList()
@@ -158,6 +173,7 @@ fun BTSCalenderScreen(
         Spacer(modifier = Modifier.padding(vertical = 20.dp))
 
         selectedDate.value?.let { clicked ->
+            val formattedDate = clicked.date.format(dateFormatter)
             val selectedDateDuties = dutiesByDate[clicked.date.toString()]
 
             if (selectedDateDuties.isNullOrEmpty()) {
@@ -167,6 +183,13 @@ fun BTSCalenderScreen(
                     color = Blue600
                 )
             } else {
+                Text(
+                    text = "Duties on $formattedDate",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Blue600
+                )
+                Spacer(modifier = Modifier.padding(vertical = 10.dp))
+
                 selectedDateDuties.forEach { duty ->
                     DutyListCard(
                         duty = duty,
@@ -294,6 +317,7 @@ fun PreviewBTSCalenderScreen(){
     BTSAllotTheme {
         BTSCalenderScreen(
             duties = emptyList(),
+            user = "Anuj",
             appliedDutyId = mutableSetOf()
         )
     }
