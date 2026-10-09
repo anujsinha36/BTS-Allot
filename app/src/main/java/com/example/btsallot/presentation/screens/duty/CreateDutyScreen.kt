@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -19,6 +20,7 @@ import com.example.btsallot.domain.utils.DutyData
 import com.example.btsallot.domain.utils.fromMinutes
 import com.example.btsallot.domain.utils.toMinutes
 import com.example.btsallot.presentation.designsystem.buttons.PrimaryButton
+import com.example.btsallot.presentation.designsystem.scaffold.AppScaffold
 import com.example.btsallot.presentation.designsystem.selections.OptionsSelectionSheet
 import com.example.btsallot.presentation.designsystem.selections.TimeSelectionSheet
 import com.example.btsallot.presentation.designsystem.textfields.DropdownTextField
@@ -165,30 +167,16 @@ fun CreateDutyScreen(
         else -> Unit
     }
 
-    Scaffold(
-        containerColor = BackgroundLight,
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 45.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onBackClick) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back",
-                         )
-                }
-                Text(text = "Create Duty", style = MaterialTheme.typography.titleLarge, color = TextPrimary)
-            }
-        }
+    AppScaffold(
+        title = "Create Duty",
+        onBackClick = onBackClick,
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 8.dp)
+                .padding(horizontal = 20.dp, vertical = 10.dp)
         ) {
             val dayLabel = if (isTemplate) "Day" else "Date"
             val selectedDate = if (isTemplate)day else dateFromCalendar?.format(dateFormatter).orEmpty()

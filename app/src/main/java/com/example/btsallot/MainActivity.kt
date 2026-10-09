@@ -3,10 +3,12 @@ package com.example.btsallot
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,8 +18,6 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import com.example.btsallot.navigation.NavGraph
 import com.example.btsallot.presentation.theme.BTSAllotTheme
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
 import com.google.firebase.messaging.FirebaseMessaging
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -36,7 +36,12 @@ class MainActivity : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(
+                scrim = Color.TRANSPARENT,
+                darkScrim = Color.TRANSPARENT
+            )
+        )
         destinationState = intent.getStringExtra("destination")
         askNotificationPermission()
         subscribeToDutyNotifications()

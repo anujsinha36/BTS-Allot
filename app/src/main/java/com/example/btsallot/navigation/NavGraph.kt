@@ -63,7 +63,7 @@ fun NavGraph(destination : String? = null){
         }
         composable<Screens.BTSCalendarScreen> {
             BTSCalendarScreenContainer(
-                authViewModel = authViewModel
+                authViewModel = authViewModel,
             )
         }
 

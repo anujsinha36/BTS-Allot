@@ -7,6 +7,7 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.btsallot.domain.model.DutyApplication
+import com.example.btsallot.presentation.designsystem.scaffold.BottomNavItem
 import com.example.btsallot.presentation.viewmodels.AuthState
 import com.example.btsallot.presentation.viewmodels.AuthViewModel
 import com.example.btsallot.presentation.viewmodels.DutyViewModel
@@ -15,8 +16,8 @@ import java.time.LocalDate
 @Composable
 fun BTSCalendarScreenContainer(
     onDateClicked: (LocalDate) -> Unit = {},
-    authViewModel: AuthViewModel
-
+    authViewModel: AuthViewModel,
+    onNavigation: (BottomNavItem) -> Unit = {}
 ){
     val dutyViewModel: DutyViewModel = hiltViewModel()
     val duties by dutyViewModel.duties.collectAsStateWithLifecycle()
@@ -50,7 +51,8 @@ fun BTSCalendarScreenContainer(
                 )
                 dutyViewModel.createApplication(application)
 
-            }, appliedDutyId = appliedDutyIds
+            }, appliedDutyId = appliedDutyIds,
+            onNavigation = onNavigation
         )
     }
 
