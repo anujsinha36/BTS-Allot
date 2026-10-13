@@ -18,8 +18,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.btsallot.domain.model.Duty
+import com.example.btsallot.presentation.theme.BTSAllotTheme
+import com.example.btsallot.presentation.theme.dimensions
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 
@@ -32,7 +35,7 @@ fun Day(day: CalendarDay,
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .padding(4.dp)
+            .padding(MaterialTheme.dimensions.extraSmall)
             .clip(CircleShape)
             .background(color = if (isSelected) MaterialTheme.colorScheme.primary.copy(0.9f)
             else Color.Transparent)
@@ -55,9 +58,9 @@ fun Day(day: CalendarDay,
                 text = day.date.dayOfMonth.toString(),
                 color = textColor
             )
-            Spacer(modifier = Modifier.height(5.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.extraSmall))
 
-            Box(modifier = Modifier.size(8.dp).clip(CircleShape)
+            Box(modifier = Modifier.size(MaterialTheme.dimensions.small).clip(CircleShape)
                 .background(color)
             )
 
@@ -68,3 +71,11 @@ fun Day(day: CalendarDay,
         }
     }
     }
+
+@Preview
+@Composable
+fun PreviewDate(){
+    BTSAllotTheme {
+
+    }
+}

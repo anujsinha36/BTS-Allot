@@ -54,6 +54,7 @@ import com.example.btsallot.presentation.theme.SurfaceWhite
 import com.example.btsallot.presentation.theme.TextPrimary
 import com.example.btsallot.presentation.theme.TextSecondary
 import com.example.btsallot.presentation.theme.TextTertiary
+import com.example.btsallot.presentation.theme.dimensions
 import com.kizitonwose.calendar.compose.*
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.OutDateStyle
@@ -113,12 +114,11 @@ fun BTSCalenderScreen(
             modifier = Modifier
                 .fillMaxSize().padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
-                .padding(horizontal = 16.dp).
+                .padding(horizontal = MaterialTheme.dimensions.medium).
                 verticalScroll(state = rememberScrollState()),
         ){
-           // Spacer(modifier = Modifier.padding(vertical = 30.dp))
             Column(modifier = Modifier.fillMaxWidth()
-            .padding(horizontal = 10.dp, vertical = 1.dp)
+            .padding(horizontal = MaterialTheme.dimensions.small)
             ) {
                 Text(
                     text = "Hello, $user \uD83D\uDC4B",
@@ -126,7 +126,7 @@ fun BTSCalenderScreen(
                     color = TextPrimary,
                   //  fontSize = 18.sp
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(MaterialTheme.dimensions.extraSmall))
                 Text(text = "Let's make this month count.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onTertiaryFixed
@@ -134,10 +134,11 @@ fun BTSCalenderScreen(
             }
 
            // Spacer(modifier = Modifier.padding(vertical = 5.dp))
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.medium))
             CalendarTitle(
                 currentMonth = visibleMonth.yearMonth,
-                modifier = Modifier.padding(vertical = 10.dp, horizontal = 3.dp),
+                modifier = Modifier.padding(vertical = MaterialTheme.dimensions.small,
+                    horizontal = MaterialTheme.dimensions.extraSmall),
                 goToPrevious = {
                     coroutineScope.launch {
                         state.animateScrollToMonth(visibleMonth.yearMonth.previousMonth)
@@ -151,7 +152,7 @@ fun BTSCalenderScreen(
                 }
             )
             HorizontalCalendar(
-                modifier = Modifier.padding(horizontal = 8.dp),
+                modifier = Modifier.padding(horizontal = MaterialTheme.dimensions.small),
                 state = state,
                 dayContent = {day->
                     val dayDuties = dutiesByDate[day.date.toString()] ?: emptyList()
@@ -180,9 +181,9 @@ fun BTSCalenderScreen(
                     DaysOfWeekTitle(daysOfWeek)
                 }
             )
-            Spacer(modifier = Modifier.padding(vertical = 10.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
             LegendRow()
-            Spacer(modifier = Modifier.padding(vertical = 20.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.large))
 
             selectedDate.value?.let { clicked ->
                 val formattedDate = clicked.date.format(dateFormatter)
@@ -200,7 +201,7 @@ fun BTSCalenderScreen(
                         style = MaterialTheme.typography.labelMedium,
                         color = Blue600
                     )
-                    Spacer(modifier = Modifier.padding(vertical = 10.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
 
                     selectedDateDuties.forEach { duty ->
                         DutyListCard(
@@ -228,7 +229,8 @@ private fun LegendRow() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 22.dp, vertical = 12.dp),
+                .padding(horizontal = MaterialTheme.dimensions.large,
+                    vertical = MaterialTheme.dimensions.medium),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             LegendDot(StatusAvailable, "Available")
@@ -245,7 +247,9 @@ fun DutyListCard(duty: Duty,
                  appliedDutyId: Set<String>,
                  modifier: Modifier = Modifier) {
     Card(
-        modifier = modifier.fillMaxWidth().padding(vertical = 5.dp),
+        modifier = modifier.fillMaxWidth().
+        padding(vertical = MaterialTheme.dimensions.extraSmall)
+        ,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -253,12 +257,12 @@ fun DutyListCard(duty: Duty,
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
+                .padding(MaterialTheme.dimensions.small),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(55.dp)
+                    .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(BlueLight),
                 contentAlignment = Alignment.Center
@@ -270,7 +274,7 @@ fun DutyListCard(duty: Duty,
                     modifier = Modifier.size(20.dp)
                 )
             }
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(MaterialTheme.dimensions.medium))
             Column(modifier = Modifier.weight(1f)) {
                 val startTime = duty.startMinutes
                 val endTime = duty.endMinutes
@@ -279,13 +283,13 @@ fun DutyListCard(duty: Duty,
                     style = MaterialTheme.typography.bodySmall,
                     color = TextTertiary
                 )
-                Spacer(modifier = Modifier.height(5.dp))
+                Spacer(modifier = Modifier.height(MaterialTheme.dimensions.extraSmall))
                 Text(
                     text = duty.meetingName,
                     style = MaterialTheme.typography.titleMedium,
                     color = TextPrimary
                 )
-                Spacer(modifier = Modifier.height(5.dp))
+                Spacer(modifier = Modifier.height(MaterialTheme.dimensions.extraSmall))
                 Text(
                     text = duty.location,
                     style = MaterialTheme.typography.bodySmall,
@@ -308,12 +312,14 @@ fun DutyListCard(duty: Duty,
                         style = MaterialTheme.typography.bodySmall,
                         color = statusColor
                     )
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
                     Button(
                         onClick = { onDutyApplyClick(duty) },
                         shape = RoundedCornerShape(10.dp),
                         enabled = !hasApplied && !isFull,
-                        contentPadding = PaddingValues(horizontal = 18.dp, vertical = 6.dp),
+                        contentPadding = PaddingValues(
+                            horizontal = MaterialTheme.dimensions.medium,
+                            vertical = MaterialTheme.dimensions.extraSmall),
                         modifier = Modifier.height(32.dp)
                     ) {
                         val text = if (hasApplied) "Applied" else "Apply"
@@ -335,6 +341,22 @@ fun PreviewBTSCalenderScreen(){
             appliedDutyId = mutableSetOf(),
             onNavigation = {}
         )
+        val duty = Duty(
+            id = "2026-09-19_City_Level_Daimoku",
+            date = "2026-09-19",
+            meetingName = "City Level Daimoku",
+            startMinutes = 600,
+            endMinutes = 780,
+            btsRequired = 2,
+            btsReservedCount = 1,
+            location = "BLR Kaikan",
+            notes = null
+        )
+//        DutyListCard(
+//            duty = duty,
+//            onDutyApplyClick = {},
+//            appliedDutyId = emptySet(),
+//        )
     }
 }
 

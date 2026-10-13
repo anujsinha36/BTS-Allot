@@ -17,8 +17,6 @@ fun AdminCalendarScreenContainer(
         onDateClicked = onDateClicked,
         onCreateTemplate = onCreateTemplate,
         onBtsScreen = onBtsScreen,
-        onSync = {
-            viewModel.syncData()
-        }
+        onSync = {}
     )
 }

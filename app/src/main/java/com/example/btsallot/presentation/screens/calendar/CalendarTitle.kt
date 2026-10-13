@@ -35,6 +35,7 @@ import com.example.btsallot.R
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.BlueLight
 import com.example.btsallot.presentation.theme.SurfaceWhite
+import com.example.btsallot.presentation.theme.dimensions
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -55,7 +56,7 @@ fun CalendarTitle(
 
     ) {
         Row(
-            modifier = modifier.height(20.dp),
+            modifier = modifier.height(MaterialTheme.dimensions.large),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             CalendarNavigationIcon(
@@ -107,7 +108,7 @@ private fun CalendarNavigationIcon(
     Icon(
         modifier = Modifier
             .fillMaxSize()
-            .padding(2.dp)
+            .padding(MaterialTheme.dimensions.extraSmall)
             .align(Alignment.Center)
             .rotate(rotation),
         painter = painterResource(id = icon),

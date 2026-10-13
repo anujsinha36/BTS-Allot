@@ -22,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.btsallot.data.repository.AuthRepositoryImpl
+import com.example.btsallot.presentation.designsystem.states.LoadingState
 import com.example.btsallot.presentation.viewmodels.AuthState
 import com.example.btsallot.presentation.viewmodels.AuthViewModel
 
@@ -54,7 +55,7 @@ fun LoginScreen(
             }
 
             is AuthState.Loading -> {
-                CircularProgressIndicator()
+                LoadingState()
             }
 
             is AuthState.Error -> {
