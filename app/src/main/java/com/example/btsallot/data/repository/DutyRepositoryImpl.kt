@@ -88,8 +88,10 @@ class DutyRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun listenToDutyUpdates(): Flow<List<Duty>> = callbackFlow {
+    override fun listenToDutyUpdates(startDate: String, endDate: String): Flow<List<Duty>> = callbackFlow {
         val dutyListenerRegistration = firestoreDB.collection("duties")
+            .whereGreaterThanOrEqualTo("date", startDate)
+            .whereLessThanOrEqualTo("date", endDate)
             .addSnapshotListener { snapshots, exception ->
                 if (exception != null){
                     //shuts down flow stream, tells downstream flow collectors (like your ViewModel or UI)
@@ -203,6 +205,11 @@ class DutyRepositoryImpl @Inject constructor(
         awaitClose { applicationListenerRegistration.remove() }
     }
 
+    override fun observeAppliedDuties(userId: String): Flow<List<Duty>> {
+        return dutyDao.observeAppliedDuties(userId).map { entities->
+            entities.map { it.toDomainDuty() }
+        }
+    }
     private suspend fun revertLocalApplication(application: DutyApplication, applicationId: String) {
         try {
             // 1. Remove the application record from Room

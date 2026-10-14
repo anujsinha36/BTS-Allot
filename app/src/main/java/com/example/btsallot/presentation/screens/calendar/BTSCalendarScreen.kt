@@ -335,12 +335,6 @@ fun DutyListCard(duty: Duty,
 @Composable
 fun PreviewBTSCalenderScreen(){
     BTSAllotTheme {
-        BTSCalenderScreen(
-            duties = emptyList(),
-            user = "Anuj",
-            appliedDutyId = mutableSetOf(),
-            onNavigation = {}
-        )
         val duty = Duty(
             id = "2026-09-19_City_Level_Daimoku",
             date = "2026-09-19",
@@ -351,6 +345,12 @@ fun PreviewBTSCalenderScreen(){
             btsReservedCount = 1,
             location = "BLR Kaikan",
             notes = null
+        )
+        BTSCalenderScreen(
+            duties = listOf(duty),
+            user = "Anuj",
+            appliedDutyId = mutableSetOf(),
+            onNavigation = {}
         )
 //        DutyListCard(
 //            duty = duty,

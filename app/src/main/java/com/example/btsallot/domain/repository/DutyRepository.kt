@@ -16,7 +16,7 @@ interface DutyRepository {
    // Syncs Firestore data into Room
    suspend fun syncDuties(): Result<Unit>
 
-   fun listenToDutyUpdates(): Flow<List<Duty>>
+   fun listenToDutyUpdates(startDate: String, endDate: String): Flow<List<Duty>>
 
    // Single Source of Truth for UI
    fun getAllDuties(): Flow<List<Duty>>
@@ -27,4 +27,6 @@ interface DutyRepository {
    fun getAppliedDutyIds(userId: String): Flow<Set<String>>
 
    fun listenToUserApplications(userId: String): Flow<List<DutyApplication>>
+
+   fun observeAppliedDuties(userId: String): Flow<List<Duty>>
 }

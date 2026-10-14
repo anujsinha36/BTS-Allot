@@ -18,4 +18,17 @@ interface DutyDao {
 
     @Query("SELECT * FROM duties WHERE date BETWEEN :startDate AND :endDate")
     fun observeDuties(startDate: String,endDate: String): Flow<List<DutyEntity>>
+
+    @Query(
+        """
+    SELECT duties.*
+    FROM duties
+    INNER JOIN duty_applications
+        ON duties.id = duty_applications.dutyId
+    WHERE duty_applications.userId = :userId
+    ORDER BY duties.date ASC, duties.startMinutes ASC
+    """
+    )
+    fun observeAppliedDuties(userId: String): Flow<List<DutyEntity>>
+
 }

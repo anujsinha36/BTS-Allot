@@ -7,11 +7,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.btsallot.presentation.designsystem.scaffold.BottomNavItem
 import com.example.btsallot.presentation.screens.home.HomeScreen
 import com.example.btsallot.presentation.screens.authenticate.LoginScreen
 import com.example.btsallot.presentation.screens.calendar.AdminCalendarScreenContainer
 import com.example.btsallot.presentation.screens.calendar.BTSCalendarScreenContainer
 import com.example.btsallot.presentation.screens.duty.CreateDutyScreenContainer
+import com.example.btsallot.presentation.screens.duty.MyDutiesContainer
+import com.example.btsallot.presentation.screens.duty.MyDutiesScreen
 import com.example.btsallot.presentation.viewmodels.AuthViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -22,6 +25,22 @@ fun NavGraph(destination : String? = null){
     val navController = rememberNavController()
     val authCurrentUser = Firebase.auth.currentUser
     val authViewModel: AuthViewModel = hiltViewModel()
+    val onNavigate: (BottomNavItem) -> Unit = {item->
+        val route = when(item){
+            BottomNavItem.Calendar -> Screens.CalendarScreen
+            BottomNavItem.Duties -> Screens.MyDutiesScreen
+            BottomNavItem.Profile -> Screens.HomeScreen
+        }
+        navController.navigate(route) {
+            popUpTo(navController.graph.startDestinationId) {
+                saveState = true
+            }
+
+            launchSingleTop = true
+            restoreState = true
+        }
+
+    }
 
     val firstScreen = if (authCurrentUser != null){
         if (destination == "calendar") Screens.BTSCalendarScreen else Screens.CalendarScreen
@@ -64,6 +83,7 @@ fun NavGraph(destination : String? = null){
         composable<Screens.BTSCalendarScreen> {
             BTSCalendarScreenContainer(
                 authViewModel = authViewModel,
+                onNavigation = onNavigate
             )
         }
 
@@ -91,6 +111,13 @@ fun NavGraph(destination : String? = null){
                     navController.navigate(Screens.CalendarScreen)
                 },
                 isTemplate = false
+            )
+        }
+
+        composable<Screens.MyDutiesScreen> {
+            MyDutiesContainer(
+                authViewModel = authViewModel,
+                onNavigation = onNavigate
             )
         }
     }

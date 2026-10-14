@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.BlueLight
+import com.example.btsallot.presentation.theme.dimensions
 
 enum class BottomNavItem(val label: String, val icon: ImageVector){
     Calendar("Calendar", Icons.Default.CalendarMonth),
@@ -92,7 +93,8 @@ fun BottomNavTab(
             .clip(RoundedCornerShape(16.dp))
             .background(bgColor)
             .clickable{onClick()}
-            .padding(start = 8.dp, end = 8.dp, top = 6.dp, bottom = 10.dp)
+            .padding(MaterialTheme.dimensions.small)
+           // .navigationBarsPadding()
     ) {
             Icon(
                 imageVector = item.icon,

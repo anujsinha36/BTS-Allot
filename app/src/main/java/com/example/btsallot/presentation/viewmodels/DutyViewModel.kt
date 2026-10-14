@@ -2,7 +2,6 @@ package com.example.btsallot.presentation.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.btsallot.data.room.application.DutyApplicationEntity
 import com.example.btsallot.domain.repository.DutyRepository
 import com.example.btsallot.domain.model.Duty
 import com.example.btsallot.domain.model.DutyApplication
@@ -12,9 +11,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
@@ -27,7 +27,9 @@ data class DutyUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val duties: List<Duty> = emptyList(),
-    val appliedDutyIds: Set<String> = emptySet()
+    val appliedDutyIds: Set<String> = emptySet(),
+    val upcomingAppliedDuties: List<Duty> = emptyList(),
+    val pastAppliedDuties: List<Duty> = emptyList()
 )
 
 @HiltViewModel
@@ -47,6 +49,27 @@ class DutyViewModel @Inject constructor(
     private var appliedDutyIdsJob: Job? = null
     private var userApplicationsListenerJob: Job? = null
     private var dutyUpdatesListenerJob: Job? = null
+
+    private val _myDutiesUserId = MutableStateFlow<String?>(null)
+
+    private val appliedDuties: StateFlow<List<Duty>> =
+        _myDutiesUserId
+            .flatMapLatest { userId ->
+                if (userId == null) {
+                    flowOf(emptyList())
+                } else {
+                    repository.observeAppliedDuties(userId)
+                }
+            }
+            .catch { e ->
+                _errorMessage.value = e.message ?: "Unable to load applied duties"
+                emit(emptyList())
+            }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
 
     private val duties: StateFlow<List<Duty>> = repository.observeDutiesByDate(startMonth, endMonth)
         .onStart{
@@ -70,13 +93,34 @@ class DutyViewModel @Inject constructor(
             _isLoading,
             _errorMessage,
             duties,
-            _appliedDutyIds
-        ){isLoading, errorMessage, duties, appliedDutyIds ->
+            _appliedDutyIds,
+            appliedDuties
+        ){isLoading, errorMessage, duties, appliedDutyIds, appliedDuties ->
+
+            val today = java.time.LocalDate.now()
+            val now = java.time.LocalTime.now()
+            val nowMinutes = now.hour * 60 + now.minute
+
+            val upcomingAppliedDuties = appliedDuties.filter { duty ->
+                val dutyDate = java.time.LocalDate.parse(duty.date)
+
+                dutyDate.isAfter(today) ||
+                        (dutyDate.isEqual(today) && duty.endMinutes >= nowMinutes)
+            }
+
+            val pastAppliedDuties = appliedDuties.filter { duty ->
+                val dutyDate = java.time.LocalDate.parse(duty.date)
+
+                dutyDate.isBefore(today) ||
+                        (dutyDate.isEqual(today) && duty.endMinutes < nowMinutes)
+            }
             DutyUiState(
                 isLoading = isLoading,
                 errorMessage = errorMessage,
                 duties = duties,
-                appliedDutyIds = appliedDutyIds
+                appliedDutyIds = appliedDutyIds,
+                upcomingAppliedDuties = upcomingAppliedDuties,
+                pastAppliedDuties = pastAppliedDuties
             )
         }.stateIn(
             scope = viewModelScope,
@@ -104,7 +148,7 @@ class DutyViewModel @Inject constructor(
     fun startRealTimeSync(){
         if(dutyUpdatesListenerJob?.isActive == true) return
 
-        dutyUpdatesListenerJob = repository.listenToDutyUpdates()
+        dutyUpdatesListenerJob = repository.listenToDutyUpdates(startDate = startMonth, endDate = endMonth)
             .catch { e->
                 _errorMessage.value = e.message ?: "Unable to listen for duty updates"
             }
@@ -149,6 +193,11 @@ class DutyViewModel @Inject constructor(
                 _errorMessage.value = e.message ?: "Unable to listen for applications"
             }
             .launchIn(viewModelScope)
+    }
+
+    fun observeMyDuties(userId: String) {
+        getAppliedDutyId(userId)
+        _myDutiesUserId.value = userId
     }
 
     fun retry() {

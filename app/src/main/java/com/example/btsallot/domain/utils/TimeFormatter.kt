@@ -1,5 +1,10 @@
 package com.example.btsallot.domain.utils
 
+import androidx.compose.ui.text.intl.Locale
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import kotlin.text.format
+
 
 fun toMinutes(hour: Int, minute: Int): Int{
     return hour * 60 + minute
@@ -24,3 +29,14 @@ fun formatTime(hour: Int, minute: Int): String {
 
     return "%02d:%02d %s".format(displayHour, minute, period)
 }
+
+fun String.toLocalDate(): LocalDate = LocalDate.parse(this)
+
+fun String.toDayOfWeek(): String = toLocalDate()
+    .format(DateTimeFormatter.ofPattern("EEE", java.util.Locale.getDefault()))
+
+fun String.toDayOfMonth(): String =
+    toLocalDate().dayOfMonth.toString()
+
+fun String.toMonth(): String = toLocalDate()
+    .format(DateTimeFormatter.ofPattern("MMM", java.util.Locale.getDefault()))

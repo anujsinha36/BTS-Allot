@@ -22,6 +22,8 @@ sealed class Screens {
     object BTSCalendarScreen : Screens()
 
     @Serializable
+    object MyDutiesScreen: Screens()
+    @Serializable
     data class CreateDutyScreen(
         val date: String
     ) : Screens()
