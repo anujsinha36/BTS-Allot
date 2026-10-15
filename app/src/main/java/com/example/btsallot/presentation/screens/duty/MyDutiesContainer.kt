@@ -41,7 +41,14 @@ fun MyDutiesContainer(
                     upcomingDuties = uiState.upcomingAppliedDuties,
                     pastDuties = uiState.pastAppliedDuties,
                     onNavigation = onNavigation,
-                    onDeleteApplication = {}
+                    onDeleteApplication = {duty ->
+                        (authState as? AuthState.Success)?.let {auth->
+                            dutyViewModel.deleteApplication(
+                                userID = auth.user.uid,
+                                dutyId = duty.id
+                            )
+                        }
+                    }
                 )
             }
     }

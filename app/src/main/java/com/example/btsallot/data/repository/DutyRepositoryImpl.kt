@@ -31,11 +31,12 @@ class DutyRepositoryImpl @Inject constructor(
     private val dutyDao: DutyDao,
     private val applicationDao: ApplicationDao,
     private val firestoreDB: FirebaseFirestore
-    ): DutyRepository {
+) : DutyRepository {
 
+    //Duties
     override suspend fun createDuty(duty: Duty): Result<Unit> {
         return try {
-            val docId = "${duty.date}_${duty.meetingName.replace(" ","_")}"
+            val docId = "${duty.date}_${duty.meetingName.replace(" ", "_")}"
             val dutyWithID = duty.copy(id = docId)
 
             //Save to firestore
@@ -45,12 +46,11 @@ class DutyRepositoryImpl @Inject constructor(
             // 2. PROACTIVE CACHE: Save to Room immediately
             dutyDao.cacheDuties(listOf(dutyWithID.toEntity()))
 
-            Log.d("RepoDubg","duty successful")
+            Log.d("RepoDubg", "duty successful")
 
             Result.success(Unit)
-        }
-        catch (e: Exception){
-            Log.e("RepoDubg",e.message.toString())
+        } catch (e: Exception) {
+            Log.e("RepoDubg", e.message.toString())
             Result.failure(e)
         }
     }
@@ -63,12 +63,11 @@ class DutyRepositoryImpl @Inject constructor(
             //put a check here with date and title to avoid duplicate creation
             val templateWithID = template.copy(id = templateID).toFirestoreDutyTemplate()
             templateDoc.set(templateWithID).await()
-            Log.d("RepoDubg","template successfully created")
+            Log.d("RepoDubg", "template successfully created")
 
             Result.success(Unit)
-        }
-        catch (e: Exception){
-            Log.e("RepoDubg",e.message.toString())
+        } catch (e: Exception) {
+            Log.e("RepoDubg", e.message.toString())
             Result.failure(e)
 
         }
@@ -79,41 +78,41 @@ class DutyRepositoryImpl @Inject constructor(
             val duties = firestoreDB.collection("duties").get().await()
                 .toObjects(FirestoreDuty::class.java)
 
-           val entities = duties.map { it.toEntity() }
+            val entities = duties.map { it.toEntity() }
             dutyDao.cacheDuties(entities)
             Result.success(Unit)
-        }
-        catch (e: Exception){
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }
 
-    override fun listenToDutyUpdates(startDate: String, endDate: String): Flow<List<Duty>> = callbackFlow {
-        val dutyListenerRegistration = firestoreDB.collection("duties")
-            .whereGreaterThanOrEqualTo("date", startDate)
-            .whereLessThanOrEqualTo("date", endDate)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null){
-                    //shuts down flow stream, tells downstream flow collectors (like your ViewModel or UI)
-                    // that the stream closed because of an error, allowing .catch { ... } or try-catch in the ViewModel to handle the error
-                    close(exception)
-                    //exits callback function so code below is not executed in case of error
-                    return@addSnapshotListener
-                }
-                snapshots?.let{it->
-                    val duties = it.toObjects(FirestoreDuty::class.java)
-                    launch(Dispatchers.IO){
-                        try {
-                            dutyDao.cacheDuties(duties.map { it.toEntity() })
-                        }catch (e: Exception){
-                            Log.e("DutyRepo", "Failed to cache duties from Firestore", e)
+    override fun listenToDutyUpdates(startDate: String, endDate: String): Flow<List<Duty>> =
+        callbackFlow {
+            val dutyListenerRegistration = firestoreDB.collection("duties")
+                .whereGreaterThanOrEqualTo("date", startDate)
+                .whereLessThanOrEqualTo("date", endDate)
+                .addSnapshotListener { snapshots, exception ->
+                    if (exception != null) {
+                        //shuts down flow stream, tells downstream flow collectors (like your ViewModel or UI)
+                        // that the stream closed because of an error, allowing .catch { ... } or try-catch in the ViewModel to handle the error
+                        close(exception)
+                        //exits callback function so code below is not executed in case of error
+                        return@addSnapshotListener
+                    }
+                    snapshots?.let { it ->
+                        val duties = it.toObjects(FirestoreDuty::class.java)
+                        launch(Dispatchers.IO) {
+                            try {
+                                dutyDao.cacheDuties(duties.map { it.toEntity() })
+                            } catch (e: Exception) {
+                                Log.e("DutyRepo", "Failed to cache duties from Firestore", e)
+                            }
                         }
                     }
                 }
-            }
-        //Clean up listener when flow is cancelled
-        awaitClose { dutyListenerRegistration.remove() }
-    }
+            //Clean up listener when flow is cancelled
+            awaitClose { dutyListenerRegistration.remove() }
+        }
 
     override fun getAllDuties(): Flow<List<Duty>> {
         return dutyDao.getAllDuties().map { entities ->
@@ -121,13 +120,22 @@ class DutyRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun observeDutiesByDate(start: String, end: String
+    override fun observeDutiesByDate(
+        start: String, end: String
     ): Flow<List<Duty>> {
-        return  dutyDao.observeDuties(start,end).map { entities ->
+        return dutyDao.observeDuties(start, end).map { entities ->
             entities.map { it.toDomainDuty() }
         }
     }
 
+    override fun observeAppliedDuties(userId: String): Flow<List<Duty>> {
+        return dutyDao.observeAppliedDuties(userId).map { entities ->
+            entities.map { it.toDomainDuty() }
+        }
+    }
+
+
+    //Applications
     override suspend fun createDutyApplication(application: DutyApplication): Result<Unit> {
         val applicationID = "${application.dutyId}_${application.userId.replace(" ", "_")}"
 
@@ -137,14 +145,14 @@ class DutyRepositoryImpl @Inject constructor(
             Log.d("RepoDubg", "Application created and cached successfully")
 
             //OPTIMISTIC UPDATE: Increment count in Room for instant UI feedback
-            dutyDao.getDutyById(application.dutyId)?.let { cachedDuty->
+            dutyDao.getDutyById(application.dutyId)?.let { cachedDuty ->
                 val updatedDuty = cachedDuty.copy(
                     btsReservedCount = cachedDuty.btsReservedCount + 1
                 )
                 dutyDao.cacheDuties(listOf(updatedDuty))
             }
 
-        }catch (e: Exception){
+        } catch (e: Exception) {
             return Result.failure(e)
         }
 
@@ -160,13 +168,11 @@ class DutyRepositoryImpl @Inject constructor(
                 .await()
 
             Result.success(Unit)
-        }
-        catch (e: Exception){
-            if (e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.UNAVAILABLE){
-                Log.e("RepoDubg","Offline: Application saved locally, queued for remote sync.")
+        } catch (e: Exception) {
+            if (e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.UNAVAILABLE) {
+                Log.e("RepoDubg", "Offline: Application saved locally, queued for remote sync.")
                 Result.success(Unit)
-            }
-            else{
+            } else {
                 // Permanent error (e.g., PERMISSION_DENIED etc): Rollback Room changes!
                 Log.e("RepoDebug", "Permanent error: Reverting local application. ${e.message}")
                 revertLocalApplication(application, applicationID)
@@ -180,37 +186,80 @@ class DutyRepositoryImpl @Inject constructor(
         return applicationDao.observeAppliedDutyIds(userId).map { it.toSet() }
     }
 
-    override fun listenToUserApplications(userId: String): Flow<List<DutyApplication>> = callbackFlow {
-        val applicationListenerRegistration = firestoreDB.collection("applications")
-            .whereEqualTo("userID", userId)
-            .addSnapshotListener { snapshots, exception ->
-                if (exception != null){
-                    close(exception)
-                    return@addSnapshotListener
-                }
-                snapshots?.let { it->
-                    val firestoreApplications = it.toObjects(FirestoreDutyApplication::class.java)
-                    launch(Dispatchers.IO) {
-                        try {
-                            firestoreApplications.forEach {application ->
-                                val applicationID= "${application.dutyId}_${application.userID.replace(" ", "_")}"
-                                applicationDao.cacheApplications(application.toDutyApplicationEntity(applicationID))
+    override suspend fun deleteApplication(dutyId: String, userId: String): Result<Unit> {
+        val applicationID =  "${dutyId}_${userId.replace(" ", "_")}"
+        //Local Update
+         try {
+            applicationDao.deleteApplicationById(applicationID)
+            Log.d("RepoDubg", "Application deleted successfully")
+
+            dutyDao.getDutyById(dutyId)?.let { cachedDuty ->
+                val updatedDuty = cachedDuty.copy(
+                    btsReservedCount = (cachedDuty.btsReservedCount -1).coerceAtLeast(0)
+                )
+                dutyDao.cacheDuties(listOf(updatedDuty))
+            }
+        }
+        catch (e: Exception){
+            return Result.failure(e)
+        }
+
+        //Sync to Firestore(remote) with Surgical Update Decrement value
+        return try {
+            firestoreDB.collection("applications")
+                .document(applicationID)
+                .delete()
+                .await()
+            firestoreDB.collection("duties").document(dutyId)
+                .update("btsReservedCount", com.google.firebase.firestore.FieldValue.increment(-1))
+                .await()
+            Result.success(Unit)
+        }
+        catch (e: Exception){
+            Result.failure(e)
+        }
+    }
+
+    override fun listenToUserApplications(userId: String): Flow<List<DutyApplication>> =
+        callbackFlow {
+            val applicationListenerRegistration = firestoreDB.collection("applications")
+                .whereEqualTo("userID", userId)
+                .addSnapshotListener { snapshots, exception ->
+                    if (exception != null) {
+                        close(exception)
+                        return@addSnapshotListener
+                    }
+                    snapshots?.let { it ->
+                        val firestoreApplications =
+                            it.toObjects(FirestoreDutyApplication::class.java)
+                        launch(Dispatchers.IO) {
+                            try {
+                                firestoreApplications.forEach { application ->
+                                    val applicationID = "${application.dutyId}_${
+                                        application.userID.replace(
+                                            " ",
+                                            "_"
+                                        )
+                                    }"
+                                    applicationDao.cacheApplications(
+                                        application.toDutyApplicationEntity(
+                                            applicationID
+                                        )
+                                    )
+                                }
+                            } catch (e: Exception) {
+                                Log.e("DutyRepo", "Failed to cache user applications", e)
                             }
-                        }catch (e: Exception){
-                            Log.e("DutyRepo", "Failed to cache user applications", e)
                         }
                     }
                 }
-            }
-        awaitClose { applicationListenerRegistration.remove() }
-    }
-
-    override fun observeAppliedDuties(userId: String): Flow<List<Duty>> {
-        return dutyDao.observeAppliedDuties(userId).map { entities->
-            entities.map { it.toDomainDuty() }
+            awaitClose { applicationListenerRegistration.remove() }
         }
-    }
-    private suspend fun revertLocalApplication(application: DutyApplication, applicationId: String) {
+
+    private suspend fun revertLocalApplication(
+        application: DutyApplication,
+        applicationId: String
+    ) {
         try {
             // 1. Remove the application record from Room
             applicationDao.deleteApplicationById(applicationId)
@@ -222,7 +271,10 @@ class DutyRepositoryImpl @Inject constructor(
                 dutyDao.cacheDuties(listOf(updatedDuty))
             }
 
-            Log.d("RepoDebug", "Successfully reverted local application for duty: ${application.dutyId}")
+            Log.d(
+                "RepoDebug",
+                "Successfully reverted local application for duty: ${application.dutyId}"
+            )
         } catch (e: Exception) {
             Log.e("RepoDebug", "Failed to revert local application: ${e.message}")
         }

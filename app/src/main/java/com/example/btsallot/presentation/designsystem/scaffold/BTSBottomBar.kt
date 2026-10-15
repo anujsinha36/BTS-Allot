@@ -49,9 +49,9 @@ fun BTSBottomBar(
 ) {
     Surface(
         modifier = Modifier
-            .fillMaxWidth()
-          //  .navigationBarsPadding()
-            .height(80.dp),
+            .fillMaxWidth(),
+            //.navigationBarsPadding()
+           // .height(80.dp),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         color = MaterialTheme.colorScheme.surface, // Differentiates from background
         shadowElevation = 24.dp                  // Casts a top shadow
@@ -59,7 +59,9 @@ fun BTSBottomBar(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
+                    .navigationBarsPadding()
+                    .height(72.dp)
+                    .padding(horizontal = MaterialTheme.dimensions.small),
                 horizontalArrangement = Arrangement.SpaceAround,
                 verticalAlignment = Alignment.CenterVertically
             ) {

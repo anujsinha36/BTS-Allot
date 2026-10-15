@@ -6,6 +6,7 @@ import com.example.btsallot.domain.repository.DutyRepository
 import com.example.btsallot.domain.model.Duty
 import com.example.btsallot.domain.model.DutyApplication
 import com.example.btsallot.domain.model.DutyTemplate
+import com.example.btsallot.domain.utils.isUpcomingOrOngoing
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -97,22 +98,12 @@ class DutyViewModel @Inject constructor(
             appliedDuties
         ){isLoading, errorMessage, duties, appliedDutyIds, appliedDuties ->
 
-            val today = java.time.LocalDate.now()
-            val now = java.time.LocalTime.now()
-            val nowMinutes = now.hour * 60 + now.minute
-
             val upcomingAppliedDuties = appliedDuties.filter { duty ->
-                val dutyDate = java.time.LocalDate.parse(duty.date)
-
-                dutyDate.isAfter(today) ||
-                        (dutyDate.isEqual(today) && duty.endMinutes >= nowMinutes)
+                duty.isUpcomingOrOngoing()
             }
 
             val pastAppliedDuties = appliedDuties.filter { duty ->
-                val dutyDate = java.time.LocalDate.parse(duty.date)
-
-                dutyDate.isBefore(today) ||
-                        (dutyDate.isEqual(today) && duty.endMinutes < nowMinutes)
+                duty.isUpcomingOrOngoing()
             }
             DutyUiState(
                 isLoading = isLoading,
@@ -161,6 +152,16 @@ class DutyViewModel @Inject constructor(
             repository.createDutyApplication(application)
                 .onFailure { e->
                     _errorMessage.value = e.message ?: "Unable to apply for duty"
+                }
+        }
+    }
+
+    fun deleteApplication(dutyId: String, userID: String){
+        viewModelScope.launch {
+            repository.deleteApplication(dutyId, userID)
+                .onFailure {  e ->
+                    _errorMessage.value =
+                        e.message ?: "Unable to remove application"
                 }
         }
     }

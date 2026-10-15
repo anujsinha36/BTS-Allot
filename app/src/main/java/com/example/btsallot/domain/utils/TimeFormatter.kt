@@ -1,7 +1,9 @@
 package com.example.btsallot.domain.utils
 
 import androidx.compose.ui.text.intl.Locale
+import com.example.btsallot.domain.model.Duty
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.text.format
 
@@ -40,3 +42,12 @@ fun String.toDayOfMonth(): String =
 
 fun String.toMonth(): String = toLocalDate()
     .format(DateTimeFormatter.ofPattern("MMM", java.util.Locale.getDefault()))
+
+fun Duty.isUpcomingOrOngoing(now: LocalDateTime = LocalDateTime.now()): Boolean {
+    val dutyDate = date.toLocalDate()
+    val today = now.toLocalDate()
+    val nowMinutes = toMinutes(now.hour, now.minute)
+
+    return dutyDate.isAfter(today) ||
+            (dutyDate.isEqual(today) && endMinutes >= nowMinutes)
+}

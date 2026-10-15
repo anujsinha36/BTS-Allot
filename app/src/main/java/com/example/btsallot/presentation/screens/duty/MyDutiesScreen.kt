@@ -39,7 +39,7 @@ fun MyDutiesScreen(
     upcomingDuties: List<Duty>,
     pastDuties: List<Duty> = emptyList(),
     onNavigation: (BottomNavItem) -> Unit = {},
-    onDeleteApplication: () -> Unit = {}
+    onDeleteApplication: (Duty) -> Unit = {}
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
@@ -79,14 +79,15 @@ fun MyDutiesScreen(
             Spacer(modifier = Modifier.height(MaterialTheme.dimensions.medium))
 
             val listForTab = if (selectedTabIndex == 0) upcomingDuties else pastDuties
+            val showDeleteAction = selectedTabIndex == 0
 
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 contentPadding = PaddingValues(bottom = MaterialTheme.dimensions.medium)
             ) {
                 if (listForTab.isNotEmpty()){
-                    items(listForTab) { duty ->
-                        MyDutyCard(duty, onDeleteApplication)
+                    items(items = listForTab, key = {it.id}) { duty ->
+                        MyDutyCard(duty, {onDeleteApplication(duty)}, showDeleteAction)
                         Spacer(modifier = Modifier.height(MaterialTheme.dimensions.medium))
                     }
                 }
@@ -103,7 +104,10 @@ fun MyDutiesScreen(
 }
 
 @Composable
-private fun MyDutyCard(duty: Duty, onDelete: () -> Unit = {}) {
+private fun MyDutyCard(
+    duty: Duty,
+    onDelete: () -> Unit = {},
+    showDeleteAction: Boolean = true) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -144,14 +148,16 @@ private fun MyDutyCard(duty: Duty, onDelete: () -> Unit = {}) {
                     color = TextSecondary)
             }
 
-            IconButton(onClick = {
-                onDelete()
-            },) {
-                Icon(
-                    imageVector = Icons.Outlined.DeleteOutline,
-                    contentDescription = "Delete duty",
-                    tint = Color.Red.copy(0.6f)
-                )
+            if(showDeleteAction){
+                IconButton(onClick = {
+                    onDelete()
+                },) {
+                    Icon(
+                        imageVector = Icons.Outlined.DeleteOutline,
+                        contentDescription = "Delete duty",
+                        tint = Color.Red.copy(0.6f)
+                    )
+                }
             }
         }
     }
@@ -198,6 +204,7 @@ private fun MyDutiesScreenPreview() {
             notes = null
         )
         MyDutiesScreen(
-        upcomingDuties = listOf(duty1)
+        upcomingDuties = listOf(duty1),
+            pastDuties = listOf(duty1)
     ) }
 }

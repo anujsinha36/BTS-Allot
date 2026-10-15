@@ -122,6 +122,3 @@ fun NavGraph(destination : String? = null){
         }
     }
 }
-
-
-//currentUser is already here in Navgraph, do we also need to call in BTSContainer

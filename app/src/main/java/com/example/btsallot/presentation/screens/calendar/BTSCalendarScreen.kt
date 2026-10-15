@@ -25,6 +25,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.btsallot.domain.model.Duty
 import com.example.btsallot.domain.utils.fromMinutes
+import com.example.btsallot.domain.utils.isUpcomingOrOngoing
 import com.example.btsallot.presentation.designsystem.buttons.LegendDot
 import com.example.btsallot.presentation.designsystem.calendar.Day
 import com.example.btsallot.presentation.designsystem.calendar.DaysOfWeekTitle
@@ -105,6 +107,11 @@ fun BTSCalenderScreen(
     )
     val coroutineScope = rememberCoroutineScope()
     val visibleMonth = state.firstVisibleMonth
+
+    //reacts only when month changes
+    LaunchedEffect(visibleMonth.yearMonth) {
+        selectedDate.value = null
+    }
 
     AppScaffold(
         currentScreen = BottomNavItem.Calendar,
@@ -313,16 +320,23 @@ fun DutyListCard(duty: Duty,
                         color = statusColor
                     )
                     Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
+
+                    // to check if duty date already passed
+                    val applicationOpen = duty.isUpcomingOrOngoing()
                     Button(
                         onClick = { onDutyApplyClick(duty) },
                         shape = RoundedCornerShape(10.dp),
-                        enabled = !hasApplied && !isFull,
+                        enabled = applicationOpen && !hasApplied && !isFull,
                         contentPadding = PaddingValues(
                             horizontal = MaterialTheme.dimensions.medium,
                             vertical = MaterialTheme.dimensions.extraSmall),
                         modifier = Modifier.height(32.dp)
                     ) {
-                        val text = if (hasApplied) "Applied" else "Apply"
+                        val text = when{
+                            hasApplied -> "Applied"
+                            !applicationOpen -> "Closed"
+                            else  -> "Apply"
+                        }
                         Text(text, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
                     }
                 }
@@ -361,5 +375,4 @@ fun PreviewBTSCalenderScreen(){
 }
 
 
-// duty card appears for previous month when scrolling to next month
 //best approach if we have same viewmodel across multiple screens?
