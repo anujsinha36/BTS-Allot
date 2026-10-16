@@ -3,6 +3,7 @@ package com.example.btsallot.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -15,6 +16,8 @@ import com.example.btsallot.presentation.screens.calendar.BTSCalendarScreenConta
 import com.example.btsallot.presentation.screens.duty.CreateDutyScreenContainer
 import com.example.btsallot.presentation.screens.duty.MyDutiesContainer
 import com.example.btsallot.presentation.screens.duty.MyDutiesScreen
+import com.example.btsallot.presentation.screens.profile.ProfileScreen
+import com.example.btsallot.presentation.screens.profile.ProfileScreenContainer
 import com.example.btsallot.presentation.viewmodels.AuthViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -29,7 +32,7 @@ fun NavGraph(destination : String? = null){
         val route = when(item){
             BottomNavItem.Calendar -> Screens.CalendarScreen
             BottomNavItem.Duties -> Screens.MyDutiesScreen
-            BottomNavItem.Profile -> Screens.HomeScreen
+            BottomNavItem.Profile -> Screens.ProfileScreen
         }
         navController.navigate(route) {
             popUpTo(navController.graph.startDestinationId) {
@@ -118,6 +121,22 @@ fun NavGraph(destination : String? = null){
             MyDutiesContainer(
                 authViewModel = authViewModel,
                 onNavigation = onNavigate
+            )
+        }
+
+        composable<Screens.ProfileScreen>{
+            ProfileScreenContainer(
+                authViewModel = authViewModel,
+                onNavigation = onNavigate,
+                onLogout = {
+                    authViewModel.signOutWithGoogle()
+                    navController.navigate(Screens.AuthScreen) {
+                        //check this again for pop logic
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            inclusive = true
+                        }
+                    }
+                }
             )
         }
     }

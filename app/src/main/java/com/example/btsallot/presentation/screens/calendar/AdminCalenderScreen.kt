@@ -111,9 +111,9 @@ fun AdminCalenderScreen(
         )
         Spacer(modifier = Modifier.padding(vertical = 10.dp))
         //sync button
-        PrimaryButton(onClick = {onSync()},
-            text = "Sync",
-            enabled = true)
+//        PrimaryButton(onClick = {onSync()},
+//            text = "Sync",
+//            enabled = true)
     }
 }
 

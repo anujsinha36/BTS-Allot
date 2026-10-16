@@ -103,7 +103,7 @@ class DutyViewModel @Inject constructor(
             }
 
             val pastAppliedDuties = appliedDuties.filter { duty ->
-                duty.isUpcomingOrOngoing()
+                !duty.isUpcomingOrOngoing()
             }
             DutyUiState(
                 isLoading = isLoading,

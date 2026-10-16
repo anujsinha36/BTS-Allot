@@ -4,6 +4,6 @@ data class FirestoreUser(
     val uid: String = "",
     val name: String = "",
     val email: String = "",
-    val role: String = "VOLUNTEER",
+    val role: String = "BTS",
     val photoUrl: String? = null
 )

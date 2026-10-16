@@ -4,7 +4,8 @@ import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.util.Date
 
-sealed class Screens {
+sealed class
+Screens {
 
     @Serializable
     object AuthScreen : Screens()
@@ -23,6 +24,9 @@ sealed class Screens {
 
     @Serializable
     object MyDutiesScreen: Screens()
+
+   @Serializable
+    object ProfileScreen: Screens()
     @Serializable
     data class CreateDutyScreen(
         val date: String

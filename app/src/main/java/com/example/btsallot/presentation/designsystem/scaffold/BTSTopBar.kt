@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.TextPrimary
+import com.example.btsallot.presentation.theme.dimensions
 
 @Composable
 fun BTSTopBar(
@@ -28,14 +29,15 @@ fun BTSTopBar(
     onBackClick: (() -> Unit)? = null
 
 ){
-    Surface (modifier = Modifier.fillMaxWidth(),
+    val dimens = MaterialTheme.dimensions
+    Surface (modifier = Modifier.fillMaxWidth().padding(horizontal = dimens.small),
         color = MaterialTheme.colorScheme.background
     ){
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding() //Pushes elements below the device's System Status Bar (clock/battery area).
-                .padding(horizontal = 12.dp, vertical = 12.dp),
+                .padding(horizontal = dimens.small, vertical = dimens.small),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
