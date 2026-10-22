@@ -8,7 +8,7 @@ An offline-first Android application built with **Jetpack Compose**, **Clean Arc
 
 | Monthly Calendar | Duty Details & Application | Admin Creation |
 | :---: | :---: | :---: |
-| *[Add Screenshot]* | *[Add Screenshot]* | *[Add Screenshot]* |
+| <img src="screenshots/calendar.png" width="250"/> | <img src="screenshots/duties.png" width="250"/> | *[Add Screenshot]* |
 
 ---
 
