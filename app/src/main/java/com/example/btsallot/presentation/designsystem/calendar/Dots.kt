@@ -1,4 +1,4 @@
-package com.example.btsallot.presentation.designsystem.buttons
+package com.example.btsallot.presentation.designsystem.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

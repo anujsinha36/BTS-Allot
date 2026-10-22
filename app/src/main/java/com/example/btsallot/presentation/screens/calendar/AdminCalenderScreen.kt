@@ -4,8 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -13,10 +17,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.btsallot.domain.model.Duty
 import com.example.btsallot.presentation.designsystem.buttons.PrimaryButton
+import com.example.btsallot.presentation.designsystem.calendar.CalendarTitle
 import com.example.btsallot.presentation.designsystem.calendar.Day
 import com.example.btsallot.presentation.designsystem.calendar.DaysOfWeekTitle
+import com.example.btsallot.presentation.designsystem.calendar.LegendRow
 import com.example.btsallot.presentation.theme.BTSAllotTheme
+import com.example.btsallot.presentation.theme.Blue600
+import com.example.btsallot.presentation.theme.StatusAvailable
+import com.example.btsallot.presentation.theme.StatusFull
+import com.example.btsallot.presentation.theme.dimensions
 import com.kizitonwose.calendar.compose.*
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.OutDateStyle
@@ -31,9 +42,9 @@ import java.util.Locale
 
 @Composable
 fun AdminCalenderScreen(
+    duties: List<Duty>,
     onDateClicked: (LocalDate) -> Unit = {},
     onCreateTemplate: ()-> Unit = {},
-    onSync: () -> Unit = {},
     onBtsScreen: () -> Unit = {}
 ){
     val currentMonth = remember { YearMonth.now() }
@@ -42,7 +53,10 @@ fun AdminCalenderScreen(
     val daysOfWeek = remember { daysOfWeek() }
     val selectedDate = remember { mutableStateOf<CalendarDay?>(null) }
 
-    //see if this can be placed somewhere else
+    val dutiesByDate = remember(duties) {
+        duties.groupBy { it.date }
+    }
+
     val dateFormatter = remember {
         DateTimeFormatter.ofPattern("MMMM d, yyyy", Locale.getDefault())
     }
@@ -58,19 +72,25 @@ fun AdminCalenderScreen(
     val coroutineScope = rememberCoroutineScope()
     val visibleMonth = state.firstVisibleMonth
 
-
+    //reacts only when month changes
+    LaunchedEffect(visibleMonth.yearMonth) {
+        selectedDate.value = null
+    }
 
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.White)
-        .padding(horizontal = 10.dp),
+        .padding(horizontal = MaterialTheme.dimensions.medium),
     ){
 
-        Spacer(modifier = Modifier.padding(vertical = 40.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimensions.medium))
         CalendarTitle(
             currentMonth = visibleMonth.yearMonth,
-            modifier = Modifier.padding(vertical = 10.dp, horizontal = 8.dp),
-            isHorizontal = true,
+            modifier = Modifier.padding(
+                vertical = MaterialTheme.dimensions.small,
+                horizontal = MaterialTheme.dimensions.extraSmall
+            ),
+            // isHorizontal = true,
             goToPrevious = {
                 coroutineScope.launch {
                     state.animateScrollToMonth(visibleMonth.yearMonth.previousMonth)
@@ -85,25 +105,68 @@ fun AdminCalenderScreen(
         )
 
         HorizontalCalendar(
+            modifier = Modifier.padding(horizontal = MaterialTheme.dimensions.small),
             state = state,
             dayContent = {day->
+                val dayDuties = dutiesByDate[day.date.toString()] ?: emptyList()
+                val dayColor = when {
+                    // 1. If there are no duties at all
+                    dayDuties.isEmpty() -> Color.Transparent
+
+                    // 2. If the user has applied to ANY duty on this day (High Priority)
+                  //  dayDuties.any { appliedDutyId.contains(it.id) } -> StatusApplied
+
+                    // 3. If ALL duties for the day are full
+                    dayDuties.all { it.btsReservedCount >= it.btsRequired } -> StatusFull
+
+                    // 4. Otherwise, duties are available (hasDuty = true)
+                    else -> StatusAvailable
+                }
                 Day(day, selectedDate.value == day,
+                    duties = dayDuties,
                     onClick = {clicked->
                     selectedDate.value = clicked
                     onDateClicked(clicked.date)
-                }, color = Color.Transparent
+                }, color = dayColor
                 )
              },
             monthHeader = {
                 DaysOfWeekTitle(daysOfWeek)
             }
         )
-        Spacer(modifier = Modifier.padding(vertical = 50.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
+        LegendRow()
+        Spacer(modifier = Modifier.height(MaterialTheme.dimensions.large))
+        selectedDate.value?.let { clicked ->
+            val formattedDate = clicked.date.format(dateFormatter)
+            val selectedDateDuties = dutiesByDate[clicked.date.toString()]
+
+            if (selectedDateDuties.isNullOrEmpty()) {
+                Text(
+                    text = "No duties on this date",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Blue600
+                )
+            } else {
+                Text(
+                    text = "Duties on $formattedDate",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Blue600
+                )
+                Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
+
+                selectedDateDuties.forEach { duty ->
+                    DutyListCard(
+                        duty = duty,
+                    )
+                }
+            }
+        }
         PrimaryButton(onClick = {onCreateTemplate()},
-            text = "Create Template ->",
+            text = "Create Template",
             enabled = true)
 
-        Spacer(modifier = Modifier.padding(vertical = 10.dp))
+        Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
         PrimaryButton(
             onClick = {onBtsScreen()},
             text = "BTS Screen",
@@ -121,6 +184,21 @@ fun AdminCalenderScreen(
 @Composable
 fun PreviewAdminCalenderScreen(){
     BTSAllotTheme {
-        AdminCalenderScreen()
+        val duty12 = Duty(
+            id = "2026-09-19_City_Level_Daimoku",
+            date = "2026-09-19",
+            meetingName = "City Level Daimoku",
+            startMinutes = 600,
+            endMinutes = 780,
+            btsRequired = 2,
+            btsReservedCount = 1,
+            location = "BLR Kaikan",
+            notes = null
+        )
+        AdminCalenderScreen(
+            duties = listOf(duty12)
+        )
     }
 }
+
+//Add create duty button and shift the functionality of create duty to that

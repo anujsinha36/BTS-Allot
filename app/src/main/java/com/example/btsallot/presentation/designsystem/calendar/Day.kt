@@ -63,11 +63,6 @@ fun Day(day: CalendarDay,
             Box(modifier = Modifier.size(MaterialTheme.dimensions.small).clip(CircleShape)
                 .background(color)
             )
-
-//hasduty = yellow else blue
-            // bts == btsdone -> full
-            //else -> transparent
-
         }
     }
     }

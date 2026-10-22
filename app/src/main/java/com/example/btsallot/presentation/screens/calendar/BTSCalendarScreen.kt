@@ -1,7 +1,6 @@
 package com.example.btsallot.presentation.screens.calendar
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,13 +35,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.btsallot.domain.model.Duty
 import com.example.btsallot.domain.utils.fromMinutes
 import com.example.btsallot.domain.utils.isUpcomingOrOngoing
-import com.example.btsallot.presentation.designsystem.buttons.LegendDot
+import com.example.btsallot.presentation.designsystem.calendar.CalendarTitle
 import com.example.btsallot.presentation.designsystem.calendar.Day
 import com.example.btsallot.presentation.designsystem.calendar.DaysOfWeekTitle
+import com.example.btsallot.presentation.designsystem.calendar.LegendRow
 import com.example.btsallot.presentation.designsystem.scaffold.AppScaffold
 import com.example.btsallot.presentation.designsystem.scaffold.BottomNavItem
 import com.example.btsallot.presentation.theme.BTSAllotTheme
@@ -131,7 +130,6 @@ fun BTSCalenderScreen(
                     text = "Hello, $user \uD83D\uDC4B",
                     style = MaterialTheme.typography.titleMedium,
                     color = TextPrimary,
-                  //  fontSize = 18.sp
                 )
                 Spacer(modifier = Modifier.height(MaterialTheme.dimensions.extraSmall))
                 Text(text = "Let's make this month count.",
@@ -144,8 +142,10 @@ fun BTSCalenderScreen(
             Spacer(modifier = Modifier.height(MaterialTheme.dimensions.medium))
             CalendarTitle(
                 currentMonth = visibleMonth.yearMonth,
-                modifier = Modifier.padding(vertical = MaterialTheme.dimensions.small,
-                    horizontal = MaterialTheme.dimensions.extraSmall),
+                modifier = Modifier.padding(
+                    vertical = MaterialTheme.dimensions.small,
+                    horizontal = MaterialTheme.dimensions.extraSmall
+                ),
                 goToPrevious = {
                     coroutineScope.launch {
                         state.animateScrollToMonth(visibleMonth.yearMonth.previousMonth)
@@ -226,33 +226,11 @@ fun BTSCalenderScreen(
 }
 
 @Composable
-private fun LegendRow() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = MaterialTheme.dimensions.large,
-                    vertical = MaterialTheme.dimensions.medium),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            LegendDot(StatusAvailable, "Available")
-            LegendDot(StatusApplied, "Applied")
-            //  LegendDot(StatusAssigned, "Assigned")
-            LegendDot(StatusFull, "Full")
-        }
-    }
-}
-
-@Composable
 fun DutyListCard(duty: Duty,
-                 onDutyApplyClick: (Duty) -> Unit,
-                 appliedDutyId: Set<String>,
-                 modifier: Modifier = Modifier) {
+                 modifier: Modifier = Modifier,
+                 onDutyApplyClick: (Duty) -> Unit = {},
+                 appliedDutyId: Set<String> = emptySet()
+                 ) {
     Card(
         modifier = modifier.fillMaxWidth().
         padding(vertical = MaterialTheme.dimensions.extraSmall)

@@ -1,4 +1,4 @@
-package com.example.btsallot.presentation.screens.calendar
+package com.example.btsallot.presentation.designsystem.calendar
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
@@ -26,15 +26,12 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.btsallot.R
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.BlueLight
-import com.example.btsallot.presentation.theme.SurfaceWhite
 import com.example.btsallot.presentation.theme.dimensions
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
