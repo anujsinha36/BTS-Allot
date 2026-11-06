@@ -1,18 +1,25 @@
 package com.example.btsallot.presentation.screens.calendar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,9 +29,11 @@ import com.example.btsallot.presentation.designsystem.buttons.PrimaryButton
 import com.example.btsallot.presentation.designsystem.calendar.CalendarTitle
 import com.example.btsallot.presentation.designsystem.calendar.Day
 import com.example.btsallot.presentation.designsystem.calendar.DaysOfWeekTitle
+import com.example.btsallot.presentation.designsystem.calendar.DutyListCard
 import com.example.btsallot.presentation.designsystem.calendar.LegendRow
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.Blue600
+import com.example.btsallot.presentation.theme.StatusApplied
 import com.example.btsallot.presentation.theme.StatusAvailable
 import com.example.btsallot.presentation.theme.StatusFull
 import com.example.btsallot.presentation.theme.dimensions
@@ -35,6 +44,7 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.nextMonth
 import com.kizitonwose.calendar.core.previousMonth
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -45,12 +55,15 @@ fun AdminCalenderScreen(
     duties: List<Duty>,
     onDateClicked: (LocalDate) -> Unit = {},
     onCreateTemplate: ()-> Unit = {},
-    onBtsScreen: () -> Unit = {}
+    onBtsScreen: () -> Unit = {},
+    onDutyClick: (String) -> Unit = {},
+    onEditDuty: (Duty) -> Unit = {},
+    onDeleteDuty: (Duty) -> Unit = {}
 ){
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(6) }
     val endMonth = remember { currentMonth.plusMonths(1) }
-    val daysOfWeek = remember { daysOfWeek() }
+    val daysOfWeek = remember { daysOfWeek(firstDayOfWeek = DayOfWeek.SUNDAY) }
     val selectedDate = remember { mutableStateOf<CalendarDay?>(null) }
 
     val dutiesByDate = remember(duties) {
@@ -79,8 +92,9 @@ fun AdminCalenderScreen(
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(Color.White)
-        .padding(horizontal = MaterialTheme.dimensions.medium),
+        .background(MaterialTheme.colorScheme.background)
+        .padding(horizontal = MaterialTheme.dimensions.medium)
+        .verticalScroll(state = rememberScrollState()),
     ){
 
         Spacer(modifier = Modifier.height(MaterialTheme.dimensions.medium))
@@ -113,11 +127,13 @@ fun AdminCalenderScreen(
                     // 1. If there are no duties at all
                     dayDuties.isEmpty() -> Color.Transparent
 
-                    // 2. If the user has applied to ANY duty on this day (High Priority)
-                  //  dayDuties.any { appliedDutyId.contains(it.id) } -> StatusApplied
-
-                    // 3. If ALL duties for the day are full
+                    //Reverse order in this page to ensure 1 duty when filled shows color accordingly
+                    // 2. If ALL duties for the day are full
                     dayDuties.all { it.btsReservedCount >= it.btsRequired } -> StatusFull
+
+                    // 3. If any user has applied to ANY duty on this day (High Priority)
+                    dayDuties.any { it.btsReservedCount > 0 } -> StatusApplied
+
 
                     // 4. Otherwise, duties are available (hasDuty = true)
                     else -> StatusAvailable
@@ -126,7 +142,7 @@ fun AdminCalenderScreen(
                     duties = dayDuties,
                     onClick = {clicked->
                     selectedDate.value = clicked
-                    onDateClicked(clicked.date)
+                  //  onDateClicked(clicked.date)
                 }, color = dayColor
                 )
              },
@@ -141,27 +157,42 @@ fun AdminCalenderScreen(
             val formattedDate = clicked.date.format(dateFormatter)
             val selectedDateDuties = dutiesByDate[clicked.date.toString()]
 
-            if (selectedDateDuties.isNullOrEmpty()) {
-                Text(
-                    text = "No duties on this date",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Blue600
-                )
-            } else {
-                Text(
-                    text = "Duties on $formattedDate",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Blue600
-                )
-                Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
-
+            Row(modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if(selectedDateDuties.isNullOrEmpty())"No duties on this date"
+                        else "Duties on $formattedDate",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Blue600
+                    )
+                TextButton(
+                    onClick = {
+                        onDateClicked(clicked.date)
+                    }
+                ) {
+                    Text(
+                        text = "Create New +",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Blue600
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
+            if (!selectedDateDuties.isNullOrEmpty()){
                 selectedDateDuties.forEach { duty ->
                     DutyListCard(
                         duty = duty,
+                        onDutyClick = onDutyClick,
+                        onEditClick = onEditDuty,
+                        onDeleteClick = onDeleteDuty,
+                        isAdmin = true
                     )
                 }
             }
         }
+        Spacer(modifier = Modifier.height(MaterialTheme.dimensions.large))
         PrimaryButton(onClick = {onCreateTemplate()},
             text = "Create Template",
             enabled = true)
@@ -201,4 +232,6 @@ fun PreviewAdminCalenderScreen(){
     }
 }
 
-//Add create duty button and shift the functionality of create duty to that
+//Add functionality for edit, delete button
+//click on duty card takes to duty details, which can have separate option button for edit/delete
+//dialog box for delete confirmation

@@ -26,6 +26,7 @@ interface DutyRepository {
 
    suspend fun deleteApplication(dutyId: String, userId: String): Result<Unit>
 
+   suspend fun getDutyById(dutyId: String): Duty?
    fun getAppliedDutyIds(userId: String): Flow<Set<String>>
 
    fun listenToUserApplications(userId: String): Flow<List<DutyApplication>>

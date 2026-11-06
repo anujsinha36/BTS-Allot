@@ -1,5 +1,6 @@
 package com.example.btsallot.navigation
 
+import com.example.btsallot.domain.model.Duty
 import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.util.Date
@@ -27,6 +28,12 @@ Screens {
 
    @Serializable
     object ProfileScreen: Screens()
+
+    @Serializable
+    data class DutyDetailsScreen(
+        val dutyId: String
+    ): Screens()
+
     @Serializable
     data class CreateDutyScreen(
         val date: String

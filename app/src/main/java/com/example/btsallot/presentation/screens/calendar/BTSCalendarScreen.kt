@@ -41,6 +41,7 @@ import com.example.btsallot.domain.utils.isUpcomingOrOngoing
 import com.example.btsallot.presentation.designsystem.calendar.CalendarTitle
 import com.example.btsallot.presentation.designsystem.calendar.Day
 import com.example.btsallot.presentation.designsystem.calendar.DaysOfWeekTitle
+import com.example.btsallot.presentation.designsystem.calendar.DutyListCard
 import com.example.btsallot.presentation.designsystem.calendar.LegendRow
 import com.example.btsallot.presentation.designsystem.scaffold.AppScaffold
 import com.example.btsallot.presentation.designsystem.scaffold.BottomNavItem
@@ -225,103 +226,6 @@ fun BTSCalenderScreen(
 
 }
 
-@Composable
-fun DutyListCard(duty: Duty,
-                 modifier: Modifier = Modifier,
-                 onDutyApplyClick: (Duty) -> Unit = {},
-                 appliedDutyId: Set<String> = emptySet()
-                 ) {
-    Card(
-        modifier = modifier.fillMaxWidth().
-        padding(vertical = MaterialTheme.dimensions.extraSmall)
-        ,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(MaterialTheme.dimensions.small),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(BlueLight),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Filled.Groups,
-                    contentDescription = null,
-                    tint = Blue600,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-            Spacer(modifier = Modifier.width(MaterialTheme.dimensions.medium))
-            Column(modifier = Modifier.weight(1f)) {
-                val startTime = duty.startMinutes
-                val endTime = duty.endMinutes
-                Text(
-                    text = "${fromMinutes(startTime)} - ${fromMinutes(endTime)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextTertiary
-                )
-                Spacer(modifier = Modifier.height(MaterialTheme.dimensions.extraSmall))
-                Text(
-                    text = duty.meetingName,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary
-                )
-                Spacer(modifier = Modifier.height(MaterialTheme.dimensions.extraSmall))
-                Text(
-                    text = duty.location,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary
-                )
-            }
-            Column(horizontalAlignment = Alignment.End) {
-                Column(horizontalAlignment = Alignment.End) {
-                    val isFull = duty.btsReservedCount >= duty.btsRequired
-                    val hasApplied = appliedDutyId.contains(duty.id)
-                    val statusColor = if (isFull) FullText else Blue600
-
-                    Text(
-                        text = "${duty.btsReservedCount}/${duty.btsRequired}",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = statusColor
-                    )
-                    Text(
-                        text = "filled",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = statusColor
-                    )
-                    Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
-
-                    // to check if duty date already passed
-                    val applicationOpen = duty.isUpcomingOrOngoing()
-                    Button(
-                        onClick = { onDutyApplyClick(duty) },
-                        shape = RoundedCornerShape(10.dp),
-                        enabled = applicationOpen && !hasApplied && !isFull,
-                        contentPadding = PaddingValues(
-                            horizontal = MaterialTheme.dimensions.medium,
-                            vertical = MaterialTheme.dimensions.extraSmall),
-                        modifier = Modifier.height(32.dp)
-                    ) {
-                        val text = when{
-                            hasApplied -> "Applied"
-                            !applicationOpen -> "Closed"
-                            else  -> "Apply"
-                        }
-                        Text(text, style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.SemiBold)
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Preview(showBackground = true)
 @Composable

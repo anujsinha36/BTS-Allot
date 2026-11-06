@@ -15,6 +15,7 @@ import com.example.btsallot.data.room.duty.DutyDao
 import com.example.btsallot.domain.model.Duty
 import com.example.btsallot.domain.model.DutyApplication
 import com.example.btsallot.domain.model.DutyTemplate
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 
 class DutyRepositoryImpl @Inject constructor(
@@ -134,6 +136,10 @@ class DutyRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getDutyById(dutyId: String): Duty? {
+        return dutyDao.getDutyById(dutyId)?.toDomainDuty()
+    }
+
 
     //Applications
     override suspend fun createDutyApplication(application: DutyApplication): Result<Unit> {
@@ -160,25 +166,23 @@ class DutyRepositoryImpl @Inject constructor(
         return try {
             val applicationDoc = firestoreDB.collection("applications").document(applicationID)
             val applicationToFirestore = application.toFirestoreDutyApplication()
-            applicationDoc.set(applicationToFirestore).await()
 
-            // Surgical Update in Firestore: Increment the count: Using FieldValue.increment ensures the count is correct even if multiple people apply at once
-            firestoreDB.collection("duties").document(application.dutyId)
-                .update("btsReservedCount", com.google.firebase.firestore.FieldValue.increment(1))
-                .await()
+            val dutyDoc = firestoreDB.collection("duties").document(application.dutyId)
 
+            //create batch to ensure both firebase operations happen together
+            val batch = firestoreDB.batch()
+            batch.set(applicationDoc, applicationToFirestore)
+            batch.update(dutyDoc, "btsReservedCount",
+                FieldValue.increment(1))
+
+            batch.commit().await()
             Result.success(Unit)
-        } catch (e: Exception) {
-            if (e is FirebaseFirestoreException && e.code == FirebaseFirestoreException.Code.UNAVAILABLE) {
-                Log.e("RepoDubg", "Offline: Application saved locally, queued for remote sync.")
-                Result.success(Unit)
-            } else {
-                // Permanent error (e.g., PERMISSION_DENIED etc): Rollback Room changes!
-                Log.e("RepoDebug", "Permanent error: Reverting local application. ${e.message}")
-                revertLocalApplication(application, applicationID)
-                Result.failure(e)
-            }
-
+        } catch (e: CancellationException) {
+            throw e
+        }
+        catch (e: Exception) {
+            revertLocalApplication(application, applicationID)
+            Result.failure(e)
         }
     }
 
@@ -206,14 +210,19 @@ class DutyRepositoryImpl @Inject constructor(
 
         //Sync to Firestore(remote) with Surgical Update Decrement value
         return try {
-            firestoreDB.collection("applications")
+           val applicationDoc = firestoreDB.collection("applications")
                 .document(applicationID)
-                .delete()
-                .await()
-            firestoreDB.collection("duties").document(dutyId)
-                .update("btsReservedCount", com.google.firebase.firestore.FieldValue.increment(-1))
-                .await()
+
+           val dutyDoc =  firestoreDB.collection("duties").document(dutyId)
+
+            val batch = firestoreDB.batch()
+            batch.delete(applicationDoc)
+            batch.update(dutyDoc, "btsReservedCount", FieldValue.increment(-1))
+            batch.commit().await()
             Result.success(Unit)
+        }
+        catch (e: CancellationException){
+            throw e
         }
         catch (e: Exception){
             Result.failure(e)

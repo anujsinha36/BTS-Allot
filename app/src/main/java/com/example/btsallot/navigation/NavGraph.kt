@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.btsallot.presentation.designsystem.scaffold.BottomNavItem
+import com.example.btsallot.presentation.screens.DutyDetailsScreen
 import com.example.btsallot.presentation.screens.home.HomeScreen
 import com.example.btsallot.presentation.screens.authenticate.LoginScreen
 import com.example.btsallot.presentation.screens.calendar.AdminCalendarScreenContainer
@@ -80,7 +81,8 @@ fun NavGraph(destination : String? = null){
             AdminCalendarScreenContainer(
                 onDateClicked = {navController.navigate(Screens.CreateDutyScreen(it.toString()))},
                 onCreateTemplate = {navController.navigate(Screens.TemplateScreen)},
-                onBtsScreen = {navController.navigate(Screens.BTSCalendarScreen)}
+                onBtsScreen = {navController.navigate(Screens.BTSCalendarScreen)},
+                onDutyClick = {navController.navigate(Screens.DutyDetailsScreen(it))}
             )
         }
         composable<Screens.BTSCalendarScreen> {
@@ -121,6 +123,13 @@ fun NavGraph(destination : String? = null){
             MyDutiesContainer(
                 authViewModel = authViewModel,
                 onNavigation = onNavigate
+            )
+        }
+
+        composable<Screens.DutyDetailsScreen>{
+            val args = it.toRoute<Screens.DutyDetailsScreen>()
+            DutyDetailsScreen(
+                dutyId = args.dutyId
             )
         }
 
