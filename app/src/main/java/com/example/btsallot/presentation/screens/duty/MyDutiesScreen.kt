@@ -38,6 +38,7 @@ import com.example.btsallot.presentation.theme.dimensions
 fun MyDutiesScreen(
     upcomingDuties: List<Duty>,
     pastDuties: List<Duty> = emptyList(),
+    deletingDutyIds: Set<String> = emptySet(),
     onNavigation: (BottomNavItem) -> Unit = {},
     onDeleteApplication: (Duty) -> Unit = {}
 ) {
@@ -87,7 +88,9 @@ fun MyDutiesScreen(
             ) {
                 if (listForTab.isNotEmpty()){
                     items(items = listForTab, key = {it.id}) { duty ->
-                        MyDutyCard(duty, {onDeleteApplication(duty)}, showDeleteAction)
+                        MyDutyCard(duty, {onDeleteApplication(duty)},
+                            showDeleteAction,
+                            isDeleting = duty.id in deletingDutyIds)
                         Spacer(modifier = Modifier.height(MaterialTheme.dimensions.medium))
                     }
                 }
@@ -107,7 +110,9 @@ fun MyDutiesScreen(
 private fun MyDutyCard(
     duty: Duty,
     onDelete: () -> Unit = {},
-    showDeleteAction: Boolean = true) {
+    showDeleteAction: Boolean = true,
+    isDeleting: Boolean = false
+    ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -149,15 +154,26 @@ private fun MyDutyCard(
             }
 
             if(showDeleteAction){
-                IconButton(onClick = {
-                    onDelete()
-                },) {
-                    Icon(
-                        imageVector = Icons.Outlined.DeleteOutline,
-                        contentDescription = "Delete duty",
-                        tint = Color.Red.copy(0.6f)
+                if (isDeleting){
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(MaterialTheme.dimensions.medium)
+                            .padding(MaterialTheme.dimensions.extraSmall),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
+                else{
+                    IconButton(onClick = {
+                        onDelete()
+                    },) {
+                        Icon(
+                            imageVector = Icons.Outlined.DeleteOutline,
+                            contentDescription = "Delete duty",
+                            tint = Color.Red.copy(0.6f)
+                        )
+                    }
+                }
+
             }
         }
     }

@@ -48,7 +48,8 @@ fun MyDutiesContainer(
                                 dutyId = duty.id
                             )
                         }
-                    }
+                    },
+                    deletingDutyIds = uiState.deletingDutyIds
                 )
             }
     }

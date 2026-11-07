@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
@@ -192,39 +193,36 @@ class DutyRepositoryImpl @Inject constructor(
 
     override suspend fun deleteApplication(dutyId: String, userId: String): Result<Unit> {
         val applicationID =  "${dutyId}_${userId.replace(" ", "_")}"
-        //Local Update
-         try {
-            applicationDao.deleteApplicationById(applicationID)
-            Log.d("RepoDubg", "Application deleted successfully")
 
+        return try {
+            // 1. STEP 1: Sync to Firestore FIRST with a 5-second timeout
+            withTimeout(5000L){
+                val applicationDoc = firestoreDB.collection("applications")
+                    .document(applicationID)
+
+                val dutyDoc =  firestoreDB.collection("duties").document(dutyId)
+
+                val batch = firestoreDB.batch()
+                batch.delete(applicationDoc)
+                batch.update(dutyDoc, "btsReservedCount", FieldValue.increment(-1))
+                batch.commit().await()
+            }
+
+            // 2. STEP 2: Remote call succeeded -> Update local Room DB
+            applicationDao.deleteApplicationById(applicationID)
             dutyDao.getDutyById(dutyId)?.let { cachedDuty ->
                 val updatedDuty = cachedDuty.copy(
-                    btsReservedCount = (cachedDuty.btsReservedCount -1).coerceAtLeast(0)
+                    btsReservedCount = (cachedDuty.btsReservedCount - 1).coerceAtLeast(0)
                 )
                 dutyDao.cacheDuties(listOf(updatedDuty))
             }
-        }
-        catch (e: Exception){
-            return Result.failure(e)
-        }
-
-        //Sync to Firestore(remote) with Surgical Update Decrement value
-        return try {
-           val applicationDoc = firestoreDB.collection("applications")
-                .document(applicationID)
-
-           val dutyDoc =  firestoreDB.collection("duties").document(dutyId)
-
-            val batch = firestoreDB.batch()
-            batch.delete(applicationDoc)
-            batch.update(dutyDoc, "btsReservedCount", FieldValue.increment(-1))
-            batch.commit().await()
             Result.success(Unit)
         }
         catch (e: CancellationException){
             throw e
         }
         catch (e: Exception){
+            Log.e("DutyRepo", "Failed to delete application from Firestore", e)
             Result.failure(e)
         }
     }

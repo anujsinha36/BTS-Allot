@@ -9,6 +9,7 @@ import com.example.btsallot.domain.model.DutyTemplate
 import com.example.btsallot.domain.utils.isUpcomingOrOngoing
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +31,8 @@ data class DutyUiState(
     val duties: List<Duty> = emptyList(),
     val appliedDutyIds: Set<String> = emptySet(),
     val upcomingAppliedDuties: List<Duty> = emptyList(),
-    val pastAppliedDuties: List<Duty> = emptyList()
+    val pastAppliedDuties: List<Duty> = emptyList(),
+    val deletingDutyIds: Set<String> = emptySet()
 )
 
 @HiltViewModel
@@ -89,14 +91,26 @@ class DutyViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+    private val _deletingDutyIds = MutableStateFlow<Set<String>>(emptySet())
     val uiState: StateFlow<DutyUiState> =
         combine(
             _isLoading,
             _errorMessage,
             duties,
             _appliedDutyIds,
-            appliedDuties
-        ){isLoading, errorMessage, duties, appliedDutyIds, appliedDuties ->
+            appliedDuties,
+            _deletingDutyIds
+        )
+        @Suppress("UNCHECKED_CAST")
+        {array ->
+          //  isLoading, errorMessage, duties, appliedDutyIds, appliedDuties -> use this for 5 flows
+            // use array method for 6 or more flows
+            val isLoading = array[0] as Boolean
+            val errorMessage = array[1] as String?
+            val duties = array[2] as List<Duty>
+            val appliedDutyIds = array[3] as Set<String>
+            val appliedDuties = array[4] as List<Duty>
+            val deletingDutyIds = array[5] as Set<String>
 
             val upcomingAppliedDuties = appliedDuties.filter { duty ->
                 duty.isUpcomingOrOngoing()
@@ -111,7 +125,8 @@ class DutyViewModel @Inject constructor(
                 duties = duties,
                 appliedDutyIds = appliedDutyIds,
                 upcomingAppliedDuties = upcomingAppliedDuties,
-                pastAppliedDuties = pastAppliedDuties
+                pastAppliedDuties = pastAppliedDuties,
+                deletingDutyIds = deletingDutyIds
             )
         }.stateIn(
             scope = viewModelScope,
@@ -158,11 +173,22 @@ class DutyViewModel @Inject constructor(
 
     fun deleteApplication(dutyId: String, userID: String){
         viewModelScope.launch {
-            repository.deleteApplication(dutyId, userID)
-                .onFailure {  e ->
-                    _errorMessage.value =
-                        e.message ?: "Unable to remove application"
-                }
+            // 1. Show loader for this specific duty card
+            _deletingDutyIds.value += dutyId
+            try {
+                repository.deleteApplication(dutyId, userID)
+                    .onFailure {  e ->
+                        val userFriendlyMessage = when (e) {
+                            is TimeoutCancellationException -> "Connection timed out. Please check your internet."
+                            else -> "Unable to remove application. Please try again."
+                        }
+                        _errorMessage.value = userFriendlyMessage
+                    }
+            }
+            finally {
+                // 2. Hide loader when done (success or failure)
+                _deletingDutyIds.value -= dutyId
+            }
         }
     }
 
