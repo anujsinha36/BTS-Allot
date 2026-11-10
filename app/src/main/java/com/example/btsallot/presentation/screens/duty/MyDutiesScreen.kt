@@ -23,6 +23,7 @@ import com.example.btsallot.domain.utils.fromMinutes
 import com.example.btsallot.domain.utils.toDayOfMonth
 import com.example.btsallot.domain.utils.toDayOfWeek
 import com.example.btsallot.domain.utils.toMonth
+import com.example.btsallot.presentation.designsystem.dialogBox.DeleteConfirmationDialog
 import com.example.btsallot.presentation.designsystem.scaffold.AppScaffold
 import com.example.btsallot.presentation.designsystem.scaffold.BottomNavItem
 import com.example.btsallot.presentation.theme.BTSAllotTheme
@@ -43,6 +44,8 @@ fun MyDutiesScreen(
     onDeleteApplication: (Duty) -> Unit = {}
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
+    // Holds the duty awaiting delete confirmation; null means no dialog is open.
+    var dutyToDelete by remember { mutableStateOf<Duty?>(null) }
 
     AppScaffold(
         title = "My Duties",
@@ -88,8 +91,9 @@ fun MyDutiesScreen(
             ) {
                 if (listForTab.isNotEmpty()){
                     items(items = listForTab, key = {it.id}) { duty ->
-                        MyDutyCard(duty, {onDeleteApplication(duty)},
-                            showDeleteAction,
+                        MyDutyCard(duty = duty,
+                            onDeleteClick = {dutyToDelete = duty},
+                            showDeleteAction = showDeleteAction,
                             isDeleting = duty.id in deletingDutyIds)
                         Spacer(modifier = Modifier.height(MaterialTheme.dimensions.medium))
                     }
@@ -104,12 +108,23 @@ fun MyDutiesScreen(
             }
         }
     }
+    dutyToDelete?.let { duty ->
+        DeleteConfirmationDialog(
+            onDismiss = {dutyToDelete = null},
+            onConfirm = {onDeleteApplication(duty)
+            dutyToDelete = null
+            },
+            title = "Cancel application?",
+            message = "Are you sure you want to cancel your application?",
+            confirmText = "Delete"
+        )
+    }
 }
 
 @Composable
 private fun MyDutyCard(
     duty: Duty,
-    onDelete: () -> Unit = {},
+    onDeleteClick: () -> Unit = {},
     showDeleteAction: Boolean = true,
     isDeleting: Boolean = false
     ) {
@@ -164,7 +179,7 @@ private fun MyDutyCard(
                 }
                 else{
                     IconButton(onClick = {
-                        onDelete()
+                        onDeleteClick()
                     },) {
                         Icon(
                             imageVector = Icons.Outlined.DeleteOutline,

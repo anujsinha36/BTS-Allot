@@ -43,10 +43,4 @@ val PositionsAvailableText = Color(0xFF10B981)
 
 val LogoutRed = Color(0xFFEF4444)
 
-val PendingChipBg = Color(0xFFFFF1D6)
-val PendingChipText = Color(0xFFE0980C)
-
-val AssignedChipBg = Color(0xFFE3F8EC)
-val AssignedChipText = Color(0xFF10B981)
-
 val FullText = Color(0xFF9CA3AF)

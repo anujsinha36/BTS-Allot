@@ -28,6 +28,7 @@ import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
 
 
 class DutyRepositoryImpl @Inject constructor(
@@ -196,7 +197,7 @@ class DutyRepositoryImpl @Inject constructor(
 
         return try {
             // 1. STEP 1: Sync to Firestore FIRST with a 5-second timeout
-            withTimeout(5000L){
+            withTimeout(5000L.milliseconds){
                 val applicationDoc = firestoreDB.collection("applications")
                     .document(applicationID)
 
