@@ -15,6 +15,7 @@ import com.example.btsallot.presentation.screens.authenticate.LoginScreen
 import com.example.btsallot.presentation.screens.calendar.AdminCalendarScreenContainer
 import com.example.btsallot.presentation.screens.calendar.BTSCalendarScreenContainer
 import com.example.btsallot.presentation.screens.duty.CreateDutyScreenContainer
+import com.example.btsallot.presentation.screens.duty.DutyDetailsScreenContainer
 import com.example.btsallot.presentation.screens.duty.MyDutiesContainer
 import com.example.btsallot.presentation.screens.duty.MyDutiesScreen
 import com.example.btsallot.presentation.screens.profile.ProfileScreen
@@ -128,7 +129,7 @@ fun NavGraph(destination : String? = null){
 
         composable<Screens.DutyDetailsScreen>{
             val args = it.toRoute<Screens.DutyDetailsScreen>()
-            DutyDetailsScreen(
+            DutyDetailsScreenContainer(
                 dutyId = args.dutyId
             )
         }

@@ -1,6 +1,8 @@
 package com.example.btsallot.presentation.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.filled.Notes
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -22,7 +25,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.btsallot.domain.model.Duty
+import com.example.btsallot.domain.utils.fromMinutes
 import com.example.btsallot.presentation.designsystem.buttons.PrimaryButton
+import com.example.btsallot.presentation.designsystem.scaffold.AppScaffold
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.Blue600
 import com.example.btsallot.presentation.theme.Divider
@@ -32,72 +37,36 @@ import com.example.btsallot.presentation.theme.PositionsAvailableText
 import com.example.btsallot.presentation.theme.SurfaceWhite
 import com.example.btsallot.presentation.theme.TextPrimary
 import com.example.btsallot.presentation.theme.TextSecondary
-
-data class DutyDetails(
-    val title: String,
-    val positionsAvailableLabel: String,
-    val date: String,
-    val timeRange: String,
-    val venueName: String,
-    val venueAddress: String,
-    val volunteersRequired: Int,
-    val notes: String
-)
-
-private val sampleDutyDetails = DutyDetails(
-    title = "Morning Meeting Duty",
-    positionsAvailableLabel = "1 of 2 positions available",
-    date = "Sunday, 12 July 2025",
-    timeRange = "09:00 AM - 11:00 AM",
-    venueName = "Bangalore Centre",
-    venueAddress = "12th Main, JP Nagar, Bengaluru",
-    volunteersRequired = 2,
-    notes = "Please be 10 mins early."
-)
+import com.example.btsallot.presentation.theme.dimensions
+import java.time.format.DateTimeFormatter
+import java.time.LocalDate
+import java.util.Locale
 
 @Composable
 fun DutyDetailsScreen(
-    dutyId: String,
-    details: DutyDetails = sampleDutyDetails,
+    duty: Duty,
     onBackClick: () -> Unit = {},
     onMoreClick: () -> Unit = {},
-    onApplyClick: () -> Unit = {}
+    onApplyClick: () -> Unit = {},
+    isAdmin: Boolean = false
 ) {
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
-        topBar = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = onBackClick) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Blue600)
-                }
-                Text(
-                    text = "Duty Details",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TextPrimary
-                )
-                IconButton(onClick = onMoreClick) {
-                    Icon(Icons.Filled.MoreVert, contentDescription = "More options", tint = TextPrimary)
-                }
-            }
-        }
+    AppScaffold(
+        title = "Duty Details",
+        onBackClick = onBackClick
     ) { padding ->
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 20.dp)
+                .fillMaxSize().padding(padding)
+                .background(MaterialTheme.colorScheme.background)
+                .padding(horizontal = MaterialTheme.dimensions.medium)
+                .verticalScroll(rememberScrollState())
+
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .size(72.dp)
+                    .size(68.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(BlueSurface),
                 contentAlignment = Alignment.Center
@@ -109,9 +78,9 @@ fun DutyDetailsScreen(
                     modifier = Modifier.size(32.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.medium))
             Text(
-                text = details.title,
+                text = duty.meetingName,
                 style = MaterialTheme.typography.titleLarge,
                 color = TextPrimary,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -125,50 +94,57 @@ fun DutyDetailsScreen(
                     .padding(horizontal = 14.dp, vertical = 6.dp)
             ) {
                 Text(
-                    text = details.positionsAvailableLabel,
+                    text = "${duty.btsReservedCount} out of ${duty.btsRequired} positions filled",
                     style = MaterialTheme.typography.labelMedium,
                     color = PositionsAvailableText
                 )
             }
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.large))
 
+            val dateFormatter = remember { DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.getDefault()) }
+            val formattedDate = remember(duty.date, dateFormatter) {
+                runCatching { LocalDate.parse(duty.date).format(dateFormatter) }
+                    .getOrDefault(duty.date)
+            }
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
-                Column(modifier = Modifier.padding(10.dp)) {
-                    InfoRow(icon = Icons.Filled.CalendarMonth, title = details.date)
+                Column(modifier = Modifier.padding(horizontal = MaterialTheme.dimensions.medium,
+                    vertical = MaterialTheme.dimensions.small)) {
+                    InfoRow(icon = Icons.Filled.CalendarMonth,
+                        title = formattedDate)
                   //  RowDivider()
-                    Spacer(modifier = Modifier.height(10.dp))
-                    InfoRow(icon = Icons.Filled.AccessTime, title = details.timeRange)
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimensions.extraSmall))
+                    InfoRow(icon = Icons.Filled.AccessTime,
+                        title = "${fromMinutes(duty.startMinutes)} - ${fromMinutes(duty.endMinutes)}")
                   //  RowDivider()
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
                     InfoRow(
                         icon = Icons.Filled.LocationOn,
-                        title = details.venueName,
-                        subtitle = details.venueAddress
+                        title = duty.location,
                     )
                   //  RowDivider()
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
                     InfoRow(
                         icon = Icons.Filled.Groups,
                         title = "Volunteers Required",
-                        subtitle = details.volunteersRequired.toString()
+                        subtitle = duty.btsRequired.toString()
                     )
                    // RowDivider()
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
 
                     InfoRow(
                         icon = Icons.Filled.Notes,
                         title = "Notes",
-                        subtitle = details.notes
+                        subtitle = duty.notes?.takeIf { it.isNotBlank() }
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.large))
 
             PrimaryButton(
                 onClick = onApplyClick,
@@ -184,13 +160,13 @@ fun DutyDetailsScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Row(
-                    modifier = Modifier.padding(16.dp),
+                    modifier = Modifier.padding(MaterialTheme.dimensions.medium),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(Icons.Filled.Shield, contentDescription = null, tint = Blue600)
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(MaterialTheme.dimensions.medium))
                     Text(
-                        text = "Once applied, your name will be added to list of BTS for this meeting",
+                        text = "Once applied, your name will be added to list of BTS roster for this meeting",
                         style = MaterialTheme.typography.bodySmall,
                         color = TextSecondary
                     )
@@ -213,10 +189,13 @@ private fun InfoRow(
             .padding(vertical = 10.dp),
         verticalAlignment = Alignment.Top
     ) {
-        Icon(icon, contentDescription = null, tint = Blue600, modifier = Modifier.size(20.dp))
+        Icon(icon, contentDescription = null, tint = TextSecondary, modifier = Modifier.size(20.dp))
         Spacer(modifier = Modifier.width(14.dp))
         Column {
-            Text(text = title, style = MaterialTheme.typography.bodyLarge, color = TextPrimary, fontWeight = FontWeight.Medium)
+            Text(text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = TextPrimary, )
             if (subtitle != null) {
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(text = subtitle, style = MaterialTheme.typography.bodyMedium, color = TextSecondary)
@@ -233,7 +212,22 @@ private fun RowDivider() {
 @Preview(showBackground = true)
 @Composable
 private fun DutyDetailsScreenPreview() {
+    val duty1 = Duty(
+        id = "2026-09-19_City_Level_Daimoku",
+        date = "2026-09-19",
+        meetingName = "City Level Daimoku",
+        startMinutes = 600,
+        endMinutes = 780,
+        btsRequired = 2,
+        btsReservedCount = 1,
+        location = "BLR Kaikan",
+        notes = null
+    )
     BTSAllotTheme { DutyDetailsScreen(
-        dutyId = ""
+        duty = duty1
     ) }
 }
+
+
+//remove the primary button for admin
+//add the details screen for bts side as well. using the same composable by re-using it

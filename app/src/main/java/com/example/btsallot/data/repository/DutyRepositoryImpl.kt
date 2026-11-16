@@ -53,7 +53,10 @@ class DutyRepositoryImpl @Inject constructor(
             Log.d("RepoDubg", "duty successful")
 
             Result.success(Unit)
-        } catch (e: Exception) {
+        }  catch (e: CancellationException) {
+            throw e
+        }
+        catch (e: Exception) {
             Log.e("RepoDubg", e.message.toString())
             Result.failure(e)
         }
@@ -114,7 +117,7 @@ class DutyRepositoryImpl @Inject constructor(
                         }
                     }
                 }
-            //Clean up listener when flow is cancelled
+            //Clean up listener when flow is canceled
             awaitClose { dutyListenerRegistration.remove() }
         }
 
@@ -138,8 +141,15 @@ class DutyRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getDutyById(dutyId: String): Duty? {
-        return dutyDao.getDutyById(dutyId)?.toDomainDuty()
+    override suspend fun getDutyById(dutyId: String): Result<Duty?> {
+        return try {
+            val duty = dutyDao.getDutyById(dutyId)?.toDomainDuty()
+            Result.success(duty)
+        } catch (e: CancellationException){
+            throw e
+        } catch (e: Exception){
+            Result.failure(e)
+        }
     }
 
 

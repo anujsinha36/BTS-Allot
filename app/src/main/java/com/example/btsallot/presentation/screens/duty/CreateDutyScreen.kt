@@ -30,6 +30,7 @@ import com.example.btsallot.presentation.designsystem.textfields.StepperTextFiel
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.BackgroundLight
 import com.example.btsallot.presentation.theme.TextPrimary
+import com.example.btsallot.presentation.theme.dimensions
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -176,7 +177,7 @@ fun CreateDutyScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 10.dp)
+                .padding(horizontal = MaterialTheme.dimensions.medium, vertical = 10.dp)
         ) {
             val dayLabel = if (isTemplate) "Day" else "Date"
             val selectedDate = if (isTemplate)day else dateFromCalendar?.format(dateFormatter).orEmpty()
