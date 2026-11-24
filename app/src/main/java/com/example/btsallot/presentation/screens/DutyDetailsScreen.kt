@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -25,11 +26,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.btsallot.domain.model.Duty
+import com.example.btsallot.domain.model.DutyApplication
 import com.example.btsallot.domain.utils.fromMinutes
 import com.example.btsallot.presentation.designsystem.buttons.PrimaryButton
 import com.example.btsallot.presentation.designsystem.scaffold.AppScaffold
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.Blue600
+import com.example.btsallot.presentation.theme.BlueLight
 import com.example.btsallot.presentation.theme.Divider
 import com.example.btsallot.presentation.theme.BlueSurface
 import com.example.btsallot.presentation.theme.PositionsAvailableBg
@@ -45,6 +48,7 @@ import java.util.Locale
 @Composable
 fun DutyDetailsScreen(
     duty: Duty,
+    applications: List<DutyApplication> = emptyList(),
     onBackClick: () -> Unit = {},
     onMoreClick: () -> Unit = {},
     onApplyClick: () -> Unit = {},
@@ -52,7 +56,8 @@ fun DutyDetailsScreen(
 ) {
     AppScaffold(
         title = "Duty Details",
-        onBackClick = onBackClick
+        onBackClick = onBackClick,
+        onOptionsClick = if (isAdmin) onMoreClick else null
     ) { padding ->
         Column(
             modifier = Modifier
@@ -101,7 +106,8 @@ fun DutyDetailsScreen(
             }
             Spacer(modifier = Modifier.height(MaterialTheme.dimensions.large))
 
-            val dateFormatter = remember { DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.getDefault()) }
+            val dateFormatter =
+                remember { DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy", Locale.getDefault()) }
             val formattedDate = remember(duty.date, dateFormatter) {
                 runCatching { LocalDate.parse(duty.date).format(dateFormatter) }
                     .getOrDefault(duty.date)
@@ -112,28 +118,36 @@ fun DutyDetailsScreen(
                 colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
-                Column(modifier = Modifier.padding(horizontal = MaterialTheme.dimensions.medium,
-                    vertical = MaterialTheme.dimensions.small)) {
-                    InfoRow(icon = Icons.Filled.CalendarMonth,
-                        title = formattedDate)
-                  //  RowDivider()
+                Column(
+                    modifier = Modifier.padding(
+                        horizontal = MaterialTheme.dimensions.medium,
+                        vertical = MaterialTheme.dimensions.small
+                    )
+                ) {
+                    InfoRow(
+                        icon = Icons.Filled.CalendarMonth,
+                        title = formattedDate
+                    )
+                    //  RowDivider()
                     Spacer(modifier = Modifier.height(MaterialTheme.dimensions.extraSmall))
-                    InfoRow(icon = Icons.Filled.AccessTime,
-                        title = "${fromMinutes(duty.startMinutes)} - ${fromMinutes(duty.endMinutes)}")
-                  //  RowDivider()
+                    InfoRow(
+                        icon = Icons.Filled.AccessTime,
+                        title = "${fromMinutes(duty.startMinutes)} - ${fromMinutes(duty.endMinutes)}"
+                    )
+                    //  RowDivider()
                     Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
                     InfoRow(
                         icon = Icons.Filled.LocationOn,
                         title = duty.location,
                     )
-                  //  RowDivider()
+                    //  RowDivider()
                     Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
                     InfoRow(
                         icon = Icons.Filled.Groups,
                         title = "Volunteers Required",
                         subtitle = duty.btsRequired.toString()
                     )
-                   // RowDivider()
+                    // RowDivider()
                     Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
 
                     InfoRow(
@@ -146,36 +160,107 @@ fun DutyDetailsScreen(
 
             Spacer(modifier = Modifier.height(MaterialTheme.dimensions.large))
 
-            PrimaryButton(
-                onClick = onApplyClick,
-                text = "Apply for this Duty",
-                enabled = true,
-            )
+            if (!isAdmin) {
+                PrimaryButton(
+                    onClick = onApplyClick,
+                    text = "Apply for this Duty",
+                    enabled = true,
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = BlueSurface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(MaterialTheme.dimensions.medium),
-                    verticalAlignment = Alignment.CenterVertically
+                Spacer(modifier = Modifier.height(MaterialTheme.dimensions.medium))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = BlueSurface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
-                    Icon(Icons.Filled.Shield, contentDescription = null, tint = Blue600)
-                    Spacer(modifier = Modifier.width(MaterialTheme.dimensions.medium))
-                    Text(
-                        text = "Once applied, your name will be added to list of BTS roster for this meeting",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
-                    )
+                    Row(
+                        modifier = Modifier.padding(MaterialTheme.dimensions.medium),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Filled.Shield, contentDescription = null, tint = Blue600)
+                        Spacer(modifier = Modifier.width(MaterialTheme.dimensions.medium))
+                        Text(
+                            text = "Once applied, your name will be added to list of BTS roster for this meeting",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextSecondary
+                        )
+                    }
                 }
+                Spacer(modifier = Modifier.height(MaterialTheme.dimensions.large))
+            } else {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = BlueSurface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                ) {
+
+                    Column(
+                        modifier = Modifier.padding(
+                            horizontal = MaterialTheme.dimensions.medium,
+                            vertical = MaterialTheme.dimensions.small
+                        )
+                    ) {
+                        Text(
+                            text = "Applied Volunteers: ${applications.size}",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = TextPrimary
+                        )
+
+                        Spacer(modifier = Modifier.height(MaterialTheme.dimensions.extraSmall))
+                        HorizontalDivider(color = Divider, thickness = 2.dp)
+
+                        applications.forEachIndexed { index, applicant ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                val initials = applicant.userName
+                                    .split(" ")
+                                    .filter { it.isNotBlank() }
+                                    .take(2)
+                                    .joinToString("") { it.first().uppercase() }
+
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(RoundedCornerShape(50))
+                                        .background(SurfaceWhite),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = initials,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Blue600
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.width(MaterialTheme.dimensions.medium))
+                                Text(
+                                    text = applicant.userName,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = TextPrimary
+                                )
+                            }
+                            if (index < applications.lastIndex) {
+                                HorizontalDivider(
+                                    color = Divider,
+                                    thickness = 2.dp
+                                )
+                            }
+                        }
+                    }
+                }
+
+                    }
+                }
+                Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
             }
-            Spacer(modifier = Modifier.height(20.dp))
         }
-    }
-}
+
+
 
 @Composable
 private fun InfoRow(
@@ -204,11 +289,6 @@ private fun InfoRow(
     }
 }
 
-@Composable
-private fun RowDivider() {
-    Divider(color = Divider, thickness = 1.dp)
-}
-
 @Preview(showBackground = true)
 @Composable
 private fun DutyDetailsScreenPreview() {
@@ -224,10 +304,12 @@ private fun DutyDetailsScreenPreview() {
         notes = null
     )
     BTSAllotTheme { DutyDetailsScreen(
-        duty = duty1
+        duty = duty1,
+        isAdmin = true
     ) }
 }
 
 
-//remove the primary button for admin
 //add the details screen for bts side as well. using the same composable by re-using it
+//add parameters in navgraph
+

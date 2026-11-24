@@ -2,6 +2,7 @@ package com.example.btsallot.data.repository
 
 import android.util.Log
 import com.example.btsallot.data.mappers.toDomainDuty
+import com.example.btsallot.data.mappers.toDutyApplication
 import com.example.btsallot.data.mappers.toDutyApplicationEntity
 import com.example.btsallot.data.mappers.toEntity
 import com.example.btsallot.data.mappers.toFireStoreDuty
@@ -67,7 +68,6 @@ class DutyRepositoryImpl @Inject constructor(
             val templateID = "${template.dayOfWeek}_${template.meetingName.replace(" ", "_")}"
             val templateDoc = firestoreDB.collection("templates").document(templateID)
 
-            //put a check here with date and title to avoid duplicate creation
             val templateWithID = template.copy(id = templateID).toFirestoreDutyTemplate()
             templateDoc.set(templateWithID).await()
             Log.d("RepoDubg", "template successfully created")
@@ -77,19 +77,6 @@ class DutyRepositoryImpl @Inject constructor(
             Log.e("RepoDubg", e.message.toString())
             Result.failure(e)
 
-        }
-    }
-
-    override suspend fun syncDuties(): Result<Unit> {
-        return try {
-            val duties = firestoreDB.collection("duties").get().await()
-                .toObjects(FirestoreDuty::class.java)
-
-            val entities = duties.map { it.toEntity() }
-            dutyDao.cacheDuties(entities)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
         }
     }
 
@@ -127,6 +114,7 @@ class DutyRepositoryImpl @Inject constructor(
         }
     }
 
+    //fetch duties from Room
     override fun observeDutiesByDate(
         start: String, end: String
     ): Flow<List<Duty>> {
@@ -206,6 +194,7 @@ class DutyRepositoryImpl @Inject constructor(
         val applicationID =  "${dutyId}_${userId.replace(" ", "_")}"
 
         return try {
+
             // 1. STEP 1: Sync to Firestore FIRST with a 5-second timeout
             withTimeout(5000L.milliseconds){
                 val applicationDoc = firestoreDB.collection("applications")
@@ -266,6 +255,55 @@ class DutyRepositoryImpl @Inject constructor(
                                     )
                                 }
                             } catch (e: Exception) {
+                                Log.e("DutyRepo", "Failed to cache user applications", e)
+                            }
+                        }
+                    }
+                }
+            awaitClose { applicationListenerRegistration.remove() }
+        }
+
+
+    override fun observeApplicationsForDuty(dutyId: String): Flow<List<DutyApplication>> {
+        return applicationDao.observeApplicationsForDuty(dutyId).map { entities ->
+            entities.map { it.toDutyApplication()}
+        }
+    }
+    override fun listenToApplications(): Flow<List<DutyApplication>> =
+        callbackFlow {
+            val applicationListenerRegistration = firestoreDB.collection("applications")
+                .addSnapshotListener { snapshots, exception ->
+                    if (exception != null) {
+                        Log.e("APP_DEBUG", "Applications listener failed", exception)
+                        close(exception)
+                        return@addSnapshotListener
+                    }
+                    snapshots?.let { it ->
+                        val firestoreApplications =
+                            it.toObjects(FirestoreDutyApplication::class.java)
+                        launch(Dispatchers.IO) {
+                            try {
+                                firestoreApplications.forEach { application ->
+                                    val applicationID = "${application.dutyId}_${
+                                        application.userID.replace(
+                                            " ",
+                                            "_"
+                                        )
+                                    }"
+                                    Log.d(
+                                        "APP_DEBUG",
+                                        "Caching application docId='$applicationID', " +
+                                                "dutyId='${application.dutyId}', userIdPresent=${application.userID.isNotBlank()}"
+                                    )
+                                    applicationDao.cacheApplications(
+                                        application.toDutyApplicationEntity(
+                                            applicationID
+                                        )
+                                    )
+                                }
+                                Log.d("APP_DEBUG", "Finished caching ${firestoreApplications.size} applications")
+                            } catch (e: Exception) {
+                                Log.e("APP_DEBUG", "Failed while caching applications", e)
                                 Log.e("DutyRepo", "Failed to cache user applications", e)
                             }
                         }

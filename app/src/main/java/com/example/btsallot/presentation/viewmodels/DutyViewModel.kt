@@ -73,7 +73,44 @@ class DutyViewModel @Inject constructor(
                 started = SharingStarted.WhileSubscribed(5000),
                 initialValue = emptyList()
             )
-
+//    // 1. Driven automatically whenever _myDutiesUserId changes!
+//    val appliedDutyIds: StateFlow<Set<String>> = _myDutiesUserId
+//        .flatMapLatest { userId ->
+//            if (userId == null) {
+//                flowOf(emptySet())
+//            } else {
+//                // Automatically cancels old user flow & starts new user flow!
+//                repository.getAppliedDutyIds(userId)
+//            }
+//        }
+//        .catch { e ->
+//            _errorMessage.value = e.message ?: "Unable to load applied duty IDs"
+//            emit(emptySet())
+//        }
+//        .stateIn(
+//            scope = viewModelScope,
+//            started = SharingStarted.WhileSubscribed(5000),
+//            initialValue = emptySet()
+//        )
+//
+//    // 2. Firebase Listener syncs automatically whenever _myDutiesUserId changes!
+//    private val userApplicationsSync = _myDutiesUserId
+//        .flatMapLatest { userId ->
+//            if (userId == null) {
+//                flowOf(Unit)
+//            } else {
+//                // Listens to Firebase and syncs into Room in the background
+//                repository.listenToUserApplications(userId).map { Unit }
+//            }
+//        }
+//        .catch { e ->
+//            _errorMessage.value = e.message ?: "Unable to listen for user applications"
+//        }
+//        .stateIn(
+//            scope = viewModelScope,
+//            started = SharingStarted.WhileSubscribed(5000),
+//            initialValue = Unit
+//        )
     private val duties: StateFlow<List<Duty>> = repository.observeDutiesByDate(startMonth, endMonth)
         .onStart{
             _isLoading.value = true
@@ -92,6 +129,7 @@ class DutyViewModel @Inject constructor(
             initialValue = emptyList()
         )
     private val _deletingDutyIds = MutableStateFlow<Set<String>>(emptySet())
+
     val uiState: StateFlow<DutyUiState> =
         combine(
             _isLoading,
@@ -103,7 +141,7 @@ class DutyViewModel @Inject constructor(
         )
         @Suppress("UNCHECKED_CAST")
         {array ->
-          //  isLoading, errorMessage, duties, appliedDutyIds, appliedDuties -> use this for 5 flows
+           // isLoading, errorMessage, duties, appliedDutyIds, appliedDuties -> use this for 5 flows
             // use array method for 6 or more flows
             val isLoading = array[0] as Boolean
             val errorMessage = array[1] as String?

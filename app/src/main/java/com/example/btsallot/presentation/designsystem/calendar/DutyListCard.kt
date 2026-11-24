@@ -1,5 +1,6 @@
 package com.example.btsallot.presentation.designsystem.calendar
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,7 +63,10 @@ fun DutyListCard(duty: Duty,
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = MaterialTheme.dimensions.extraSmall)
-            .clickable {onDutyClick(duty.id)}
+            .clickable {
+                Log.d("APP_DEBUG", "Duty card clicked: dutyId='${duty.id}'")
+                onDutyClick(duty.id)
+            }
         ,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = SurfaceWhite),

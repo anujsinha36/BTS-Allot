@@ -16,6 +16,9 @@ interface ApplicationDao {
     @Query("DELETE FROM duty_applications WHERE id = :applicationId")
     suspend fun deleteApplicationById(applicationId: String)
 
+    @Query("SELECT * FROM duty_applications WHERE dutyId = :dutyId")
+    fun observeApplicationsForDuty(dutyId: String): Flow<List<DutyApplicationEntity>>
+
     @Query("DELETE FROM duty_applications")
     suspend fun clearApplications()
 // Call this on Logout to ensure if other user logs in they don't see stale data

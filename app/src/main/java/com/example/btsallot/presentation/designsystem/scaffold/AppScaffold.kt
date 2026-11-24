@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 fun AppScaffold(
     title: String? = null,
     onBackClick: (()-> Unit)? = null,
+    onOptionsClick: (() -> Unit)? = null,
     currentScreen: BottomNavItem? = null,
     onNavigate: ((BottomNavItem) -> Unit)? = null,
     content: @Composable (PaddingValues) -> Unit
@@ -15,7 +16,8 @@ fun AppScaffold(
     Scaffold(
         topBar = {BTSTopBar(
             title = title,
-            onBackClick = onBackClick
+            onBackClick = onBackClick,
+            onOptionsClick = onOptionsClick
         ) },
         bottomBar = {
             if (currentScreen!= null && onNavigate != null) {

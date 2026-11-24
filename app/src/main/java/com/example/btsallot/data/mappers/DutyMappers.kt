@@ -19,7 +19,7 @@ fun FirestoreDuty.toEntity() = DutyEntity(
     startMinutes = duty.startMinutes,
     endMinutes = duty.endMinutes,
     btsRequired = duty.btsRequired,
-    btsReservedCount = btsReservedCount,
+    btsReservedCount = btsReservedCount.coerceAtLeast(0),
     location = duty.location,
     notes = duty.notes
 )
@@ -31,7 +31,7 @@ fun DutyEntity.toDomainDuty() = Duty(
     startMinutes = startMinutes,
     endMinutes = endMinutes,
     btsRequired = btsRequired,
-    btsReservedCount = btsReservedCount,
+    btsReservedCount = btsReservedCount.coerceAtLeast(0),
     location = location,
     notes = notes
 )
@@ -39,7 +39,7 @@ fun DutyEntity.toDomainDuty() = Duty(
 fun Duty.toFireStoreDuty() = FirestoreDuty(
     id = id,
     date = date,
-    btsReservedCount = btsReservedCount,
+    btsReservedCount = btsReservedCount.coerceAtLeast(0),
     duty = DutyForm(
         meetingName = meetingName,
         startMinutes = startMinutes,
@@ -57,7 +57,7 @@ fun Duty.toEntity() = DutyEntity(
     startMinutes = startMinutes,
     endMinutes = endMinutes,
     btsRequired = btsRequired,
-    btsReservedCount = btsReservedCount,
+    btsReservedCount = btsReservedCount.coerceAtLeast(0),
     location = location,
     notes = notes
 )
@@ -90,6 +90,12 @@ fun FirestoreDutyApplication.toDutyApplicationEntity(id: String)= DutyApplicatio
 
 fun DutyApplication.toDutyApplicationEntity(id: String)= DutyApplicationEntity(
     id = id,
+    dutyId = dutyId,
+    userId = userId,
+    userName = userName
+)
+
+fun DutyApplicationEntity.toDutyApplication() = DutyApplication(
     dutyId = dutyId,
     userId = userId,
     userName = userName

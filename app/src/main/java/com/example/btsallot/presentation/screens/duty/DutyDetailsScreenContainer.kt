@@ -1,5 +1,6 @@
 package com.example.btsallot.presentation.screens.duty
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -18,12 +19,15 @@ import com.example.btsallot.presentation.viewmodels.DutyDetailsViewModel
 @Composable
 fun DutyDetailsScreenContainer(
     dutyId: String,
+    isAdmin: Boolean
 ){
     val viewModel: DutyDetailsViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(dutyId) {
+        Log.d("APP_DEBUG", "Details opened dutyId='$dutyId'")
         viewModel.loadDuty(dutyId)
+        viewModel.realTimeApplicationSync()
     }
     val duty = state.duty
 
@@ -39,7 +43,11 @@ fun DutyDetailsScreenContainer(
         }
 
         duty != null -> {
-            DutyDetailsScreen(duty = duty)
+            DutyDetailsScreen(
+                duty = duty,
+                isAdmin = isAdmin,
+                applications = state.applications
+                )
         }
 
         else ->{

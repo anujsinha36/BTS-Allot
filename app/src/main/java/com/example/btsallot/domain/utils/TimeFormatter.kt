@@ -1,6 +1,5 @@
 package com.example.btsallot.domain.utils
 
-import androidx.compose.ui.text.intl.Locale
 import com.example.btsallot.domain.model.Duty
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -44,6 +43,7 @@ fun String.toMonth(): String = toLocalDate()
     .format(DateTimeFormatter.ofPattern("MMM", java.util.Locale.getDefault()))
 
 fun Duty.isUpcomingOrOngoing(now: LocalDateTime = LocalDateTime.now()): Boolean {
+    //now parameter assigned local time as default, parameter can be useful in testing for using dummy value
     val dutyDate = date.toLocalDate()
     val today = now.toLocalDate()
     val nowMinutes = toMinutes(now.hour, now.minute)

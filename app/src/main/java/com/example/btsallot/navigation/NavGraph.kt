@@ -130,7 +130,8 @@ fun NavGraph(destination : String? = null){
         composable<Screens.DutyDetailsScreen>{
             val args = it.toRoute<Screens.DutyDetailsScreen>()
             DutyDetailsScreenContainer(
-                dutyId = args.dutyId
+                dutyId = args.dutyId,
+                isAdmin = true
             )
         }
 
