@@ -218,7 +218,7 @@ fun DutyListCardPreview(){
             duty = duty,
             onDutyApplyClick = {},
             appliedDutyId = emptySet(),
-            isAdmin = true
+            isAdmin = false
         )
     }
 }

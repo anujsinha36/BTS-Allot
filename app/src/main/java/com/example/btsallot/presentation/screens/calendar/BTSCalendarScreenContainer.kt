@@ -24,7 +24,8 @@ import java.time.LocalDate
 fun BTSCalendarScreenContainer(
     onDateClicked: (LocalDate) -> Unit = {},
     authViewModel: AuthViewModel,
-    onNavigation: (BottomNavItem) -> Unit = {}
+    onNavigation: (BottomNavItem) -> Unit = {},
+    onDutyClick: (String) -> Unit = {}
 ){
     val dutyViewModel: DutyViewModel = hiltViewModel()
     val uiState by dutyViewModel.uiState.collectAsStateWithLifecycle()
@@ -70,7 +71,8 @@ fun BTSCalendarScreenContainer(
                         dutyViewModel.createApplication(application)
 
                     }, appliedDutyId = uiState.appliedDutyIds,
-                    onNavigation = onNavigation
+                    onNavigation = onNavigation,
+                    onDutyClicked = onDutyClick
                 )
             }
             }

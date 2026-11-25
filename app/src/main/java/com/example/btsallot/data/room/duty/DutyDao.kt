@@ -10,6 +10,9 @@ interface DutyDao {
     @Upsert
     suspend fun cacheDuties(duties: List<DutyEntity>)
 
+    @Query("DELETE FROM  duties WHERE id = :dutyId")
+    suspend fun deleteDutyById(dutyId: String)
+
     @Query("SELECT * FROM duties")
     fun getAllDuties(): Flow<List<DutyEntity>>
 

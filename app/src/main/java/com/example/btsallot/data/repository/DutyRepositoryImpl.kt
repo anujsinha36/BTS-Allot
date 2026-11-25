@@ -16,9 +16,9 @@ import com.example.btsallot.data.room.duty.DutyDao
 import com.example.btsallot.domain.model.Duty
 import com.example.btsallot.domain.model.DutyApplication
 import com.example.btsallot.domain.model.DutyTemplate
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -80,6 +80,7 @@ class DutyRepositoryImpl @Inject constructor(
         }
     }
 
+    //listener for firestore duties - also updating room
     override fun listenToDutyUpdates(startDate: String, endDate: String): Flow<List<Duty>> =
         callbackFlow {
             val dutyListenerRegistration = firestoreDB.collection("duties")
@@ -93,13 +94,25 @@ class DutyRepositoryImpl @Inject constructor(
                         //exits callback function so code below is not executed in case of error
                         return@addSnapshotListener
                     }
-                    snapshots?.let { it ->
-                        val duties = it.toObjects(FirestoreDuty::class.java)
+                    snapshots?.let { snapshot ->
                         launch(Dispatchers.IO) {
                             try {
-                                dutyDao.cacheDuties(duties.map { it.toEntity() })
-                            } catch (e: Exception) {
-                                Log.e("DutyRepo", "Failed to cache duties from Firestore", e)
+                                snapshot.documentChanges.forEach { change ->
+                                    when(change.type){
+                                        DocumentChange.Type.REMOVED -> {
+                                            dutyDao.deleteDutyById(change.document.id)
+                                        }
+
+                                        DocumentChange.Type.ADDED,
+                                        DocumentChange.Type.MODIFIED -> {
+                                            val duty = change.document.toObject(FirestoreDuty::class.java)
+                                                .toEntity()
+                                            dutyDao.cacheDuties(listOf(duty))
+                                        }
+                                    }
+                                }
+                            }catch (e: Exception){
+                                Log.e("DutyRepo", "Failed to sync duty changes", e)
                             }
                         }
                     }
@@ -227,6 +240,7 @@ class DutyRepositoryImpl @Inject constructor(
         }
     }
 
+    //listener for firestore applications and updating room
     override fun listenToUserApplications(userId: String): Flow<List<DutyApplication>> =
         callbackFlow {
             val applicationListenerRegistration = firestoreDB.collection("applications")
@@ -236,26 +250,31 @@ class DutyRepositoryImpl @Inject constructor(
                         close(exception)
                         return@addSnapshotListener
                     }
-                    snapshots?.let { it ->
-                        val firestoreApplications =
-                            it.toObjects(FirestoreDutyApplication::class.java)
+                    snapshots?.let { snapshot ->
                         launch(Dispatchers.IO) {
                             try {
-                                firestoreApplications.forEach { application ->
-                                    val applicationID = "${application.dutyId}_${
-                                        application.userID.replace(
-                                            " ",
-                                            "_"
-                                        )
-                                    }"
-                                    applicationDao.cacheApplications(
-                                        application.toDutyApplicationEntity(
-                                            applicationID
-                                        )
-                                    )
+                                snapshot.documentChanges.forEach { change ->
+                                    val firestoreApplication = change.document
+                                        .toObject(FirestoreDutyApplication::class.java)
+
+                                    //val applicationId = "${firestoreApplication.dutyId}_${firestoreApplication.userID.replace(" ", "_")}"
+                                    val applicationId = change.document.id
+
+                                    when (change.type) {
+                                        DocumentChange.Type.REMOVED -> {
+                                            applicationDao.deleteApplicationById(applicationId)
+                                        }
+
+                                        DocumentChange.Type.ADDED,
+                                        DocumentChange.Type.MODIFIED -> {
+                                            applicationDao.cacheApplications(
+                                                firestoreApplication.toDutyApplicationEntity(applicationId)
+                                            )
+                                        }
+                                    }
                                 }
                             } catch (e: Exception) {
-                                Log.e("DutyRepo", "Failed to cache user applications", e)
+                                Log.e("DutyRepo", "Failed to sync user application changes", e)
                             }
                         }
                     }
@@ -269,6 +288,7 @@ class DutyRepositoryImpl @Inject constructor(
             entities.map { it.toDutyApplication()}
         }
     }
+
     override fun listenToApplications(): Flow<List<DutyApplication>> =
         callbackFlow {
             val applicationListenerRegistration = firestoreDB.collection("applications")
@@ -278,33 +298,30 @@ class DutyRepositoryImpl @Inject constructor(
                         close(exception)
                         return@addSnapshotListener
                     }
-                    snapshots?.let { it ->
-                        val firestoreApplications =
-                            it.toObjects(FirestoreDutyApplication::class.java)
+                    snapshots?.let { snapshot ->
                         launch(Dispatchers.IO) {
                             try {
-                                firestoreApplications.forEach { application ->
-                                    val applicationID = "${application.dutyId}_${
-                                        application.userID.replace(
-                                            " ",
-                                            "_"
-                                        )
-                                    }"
-                                    Log.d(
-                                        "APP_DEBUG",
-                                        "Caching application docId='$applicationID', " +
-                                                "dutyId='${application.dutyId}', userIdPresent=${application.userID.isNotBlank()}"
-                                    )
-                                    applicationDao.cacheApplications(
-                                        application.toDutyApplicationEntity(
-                                            applicationID
-                                        )
-                                    )
+                                snapshot.documentChanges.forEach { change ->
+                                    val application = change.document
+                                        .toObject(FirestoreDutyApplication::class.java)
+                                    //val applicationId = "${application.dutyId}_${application.userID.replace(" ", "_")}"
+                                    val applicationId = change.document.id
+
+                                    when (change.type) {
+                                        DocumentChange.Type.REMOVED -> {
+                                            applicationDao.deleteApplicationById(applicationId)
+                                        }
+
+                                        DocumentChange.Type.ADDED,
+                                        DocumentChange.Type.MODIFIED -> {
+                                            applicationDao.cacheApplications(
+                                                application.toDutyApplicationEntity(applicationId)
+                                            )
+                                        }
+                                    }
                                 }
-                                Log.d("APP_DEBUG", "Finished caching ${firestoreApplications.size} applications")
                             } catch (e: Exception) {
-                                Log.e("APP_DEBUG", "Failed while caching applications", e)
-                                Log.e("DutyRepo", "Failed to cache user applications", e)
+                                Log.e("DutyRepo", "Failed to sync application changes", e)
                             }
                         }
                     }

@@ -1,18 +1,15 @@
-package com.example.btsallot.presentation.screens
+package com.example.btsallot.presentation.screens.duty
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notes
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.*
@@ -32,7 +29,6 @@ import com.example.btsallot.presentation.designsystem.buttons.PrimaryButton
 import com.example.btsallot.presentation.designsystem.scaffold.AppScaffold
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.Blue600
-import com.example.btsallot.presentation.theme.BlueLight
 import com.example.btsallot.presentation.theme.Divider
 import com.example.btsallot.presentation.theme.BlueSurface
 import com.example.btsallot.presentation.theme.PositionsAvailableBg
@@ -305,11 +301,9 @@ private fun DutyDetailsScreenPreview() {
     )
     BTSAllotTheme { DutyDetailsScreen(
         duty = duty1,
-        isAdmin = true
+        isAdmin = false
     ) }
 }
 
 
-//add the details screen for bts side as well. using the same composable by re-using it
-//add parameters in navgraph
 

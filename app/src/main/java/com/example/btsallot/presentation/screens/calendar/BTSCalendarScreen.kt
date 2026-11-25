@@ -75,6 +75,7 @@ fun BTSCalenderScreen(
     duties: List<Duty>,
     user: String,
     onDateClicked: (LocalDate) -> Unit = {},
+    onDutyClicked: (String) -> Unit = {},
     appliedDutyId: Set<String>,
     onDutyApplyClicked: (Duty) -> Unit ={},
     onNavigation: ((BottomNavItem) -> Unit)?
@@ -215,7 +216,8 @@ fun BTSCalenderScreen(
                         DutyListCard(
                             duty = duty,
                             onDutyApplyClick = { onDutyApplyClicked(duty) },
-                            appliedDutyId = appliedDutyId
+                            appliedDutyId = appliedDutyId,
+                            onDutyClick = onDutyClicked
                         )
                     }
                 }

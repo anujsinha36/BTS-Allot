@@ -9,7 +9,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.btsallot.presentation.designsystem.scaffold.BottomNavItem
-import com.example.btsallot.presentation.screens.DutyDetailsScreen
 import com.example.btsallot.presentation.screens.home.HomeScreen
 import com.example.btsallot.presentation.screens.authenticate.LoginScreen
 import com.example.btsallot.presentation.screens.calendar.AdminCalendarScreenContainer
@@ -17,8 +16,6 @@ import com.example.btsallot.presentation.screens.calendar.BTSCalendarScreenConta
 import com.example.btsallot.presentation.screens.duty.CreateDutyScreenContainer
 import com.example.btsallot.presentation.screens.duty.DutyDetailsScreenContainer
 import com.example.btsallot.presentation.screens.duty.MyDutiesContainer
-import com.example.btsallot.presentation.screens.duty.MyDutiesScreen
-import com.example.btsallot.presentation.screens.profile.ProfileScreen
 import com.example.btsallot.presentation.screens.profile.ProfileScreenContainer
 import com.example.btsallot.presentation.viewmodels.AuthViewModel
 import com.google.firebase.Firebase
@@ -83,13 +80,14 @@ fun NavGraph(destination : String? = null){
                 onDateClicked = {navController.navigate(Screens.CreateDutyScreen(it.toString()))},
                 onCreateTemplate = {navController.navigate(Screens.TemplateScreen)},
                 onBtsScreen = {navController.navigate(Screens.BTSCalendarScreen)},
-                onDutyClick = {navController.navigate(Screens.DutyDetailsScreen(it))}
+                onDutyClick = {navController.navigate(Screens.AdminDutyDetailsScreen(it))}
             )
         }
         composable<Screens.BTSCalendarScreen> {
             BTSCalendarScreenContainer(
                 authViewModel = authViewModel,
-                onNavigation = onNavigate
+                onNavigation = onNavigate,
+                onDutyClick = {navController.navigate(Screens.BTSDetailsScreen(it))}
             )
         }
 
@@ -127,11 +125,20 @@ fun NavGraph(destination : String? = null){
             )
         }
 
-        composable<Screens.DutyDetailsScreen>{
-            val args = it.toRoute<Screens.DutyDetailsScreen>()
+        composable<Screens.AdminDutyDetailsScreen>{
+            val args = it.toRoute<Screens.AdminDutyDetailsScreen>()
             DutyDetailsScreenContainer(
                 dutyId = args.dutyId,
                 isAdmin = true
+            )
+        }
+
+        composable<Screens.BTSDetailsScreen> {
+            val args = it.toRoute<Screens.BTSDetailsScreen>()
+
+            DutyDetailsScreenContainer(
+                dutyId = args.dutyId,
+                isAdmin = false
             )
         }
 

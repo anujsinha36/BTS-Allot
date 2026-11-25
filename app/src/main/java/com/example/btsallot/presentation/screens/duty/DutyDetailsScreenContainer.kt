@@ -13,7 +13,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.btsallot.presentation.designsystem.states.ErrorState
 import com.example.btsallot.presentation.designsystem.states.LoadingState
-import com.example.btsallot.presentation.screens.DutyDetailsScreen
 import com.example.btsallot.presentation.viewmodels.DutyDetailsViewModel
 
 @Composable
@@ -27,7 +26,9 @@ fun DutyDetailsScreenContainer(
     LaunchedEffect(dutyId) {
         Log.d("APP_DEBUG", "Details opened dutyId='$dutyId'")
         viewModel.loadDuty(dutyId)
-        viewModel.realTimeApplicationSync()
+        if (isAdmin){
+            viewModel.realTimeApplicationSync()
+        }
     }
     val duty = state.duty
 
