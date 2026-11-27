@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,32 +40,31 @@ class DutyDetailsViewModel @Inject constructor(
     //get duty details for a dutyId
     fun loadDuty(id: String){
         Log.d("APP_DEBUG", "ViewModel requested dutyId: '$id'")
-        viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(loading = true)
-            repository.getDutyById(id)
-                .onSuccess { duty ->
+
+            repository.observeDutyById(id)
+                .onStart {
+                    _uiState.value = _uiState.value.copy(
+                        loading = true,
+                        errorMessage = null
+                    )
+                }
+                .onEach { duty ->
                     _uiState.value = _uiState.value.copy(
                         loading = false,
                         duty = duty,
                         errorMessage = if (duty == null) "Duty not found" else null
                     )
                 }
-                .onFailure { e->
+                .catch { error->
                     _uiState.value = _uiState.value.copy(
                         loading = false,
-                        errorMessage = e.message ?: "Unable to load duty"
+                        errorMessage = error.message ?: "Unable to load duty"
                     )
-                }
-        }
+                }.launchIn(viewModelScope)
+
 
         repository.observeApplicationsForDuty(id)
             .onEach { applications ->
-                Log.d("APP_DEBUG", "Room returned ${applications.size} applications for dutyId: '$id'")
-                Log.d(
-                    "APP_DEBUG",
-                    "Room query dutyId='$id', count=${applications.size}, " +
-                            "returnedDutyIds=${applications.map { it.dutyId }}"
-                )
                 _uiState.value = _uiState.value.copy(
                     applications = applications
                 )
@@ -76,6 +76,17 @@ class DutyDetailsViewModel @Inject constructor(
             }
             .launchIn(viewModelScope)
 
+    }
+
+    fun createApplication(application: DutyApplication){
+        viewModelScope.launch {
+            repository.createDutyApplication(application)
+                .onFailure { error->
+                    _uiState.value = _uiState.value.copy(
+                        errorMessage = error.message ?: "Unable to apply for this duty at this time"
+                    )
+                }
+        }
     }
 
     fun realTimeApplicationSync() {

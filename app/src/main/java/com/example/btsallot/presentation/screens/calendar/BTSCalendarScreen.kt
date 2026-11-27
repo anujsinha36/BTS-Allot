@@ -25,9 +25,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +45,7 @@ import com.example.btsallot.presentation.designsystem.calendar.Day
 import com.example.btsallot.presentation.designsystem.calendar.DaysOfWeekTitle
 import com.example.btsallot.presentation.designsystem.calendar.DutyListCard
 import com.example.btsallot.presentation.designsystem.calendar.LegendRow
+import com.example.btsallot.presentation.designsystem.dialogBox.ApplyConfirmationDialog
 import com.example.btsallot.presentation.designsystem.scaffold.AppScaffold
 import com.example.btsallot.presentation.designsystem.scaffold.BottomNavItem
 import com.example.btsallot.presentation.theme.BTSAllotTheme
@@ -85,6 +88,8 @@ fun BTSCalenderScreen(
     val endMonth = remember { currentMonth.plusMonths(1) }
     val daysOfWeek = remember { daysOfWeek(firstDayOfWeek = DayOfWeek.SUNDAY) }
     val selectedDate = remember { mutableStateOf<CalendarDay?>(null) }
+
+    var dutyToApply by remember { mutableStateOf<Duty?>(null) }
 
 
     // Groups the list of duties into a Map (folders) for instant lookup by date.
@@ -215,7 +220,10 @@ fun BTSCalenderScreen(
                     selectedDateDuties.forEach { duty ->
                         DutyListCard(
                             duty = duty,
-                            onDutyApplyClick = { onDutyApplyClicked(duty) },
+                            onDutyApplyClick = {
+                               // onDutyApplyClicked(duty)
+                                dutyToApply = duty
+                                               },
                             appliedDutyId = appliedDutyId,
                             onDutyClick = onDutyClicked
                         )
@@ -224,6 +232,15 @@ fun BTSCalenderScreen(
             }
 
         }
+    }
+    dutyToApply?.let { duty ->
+        ApplyConfirmationDialog(
+            onDismiss = {dutyToApply = null},
+            onConfirm = {
+                dutyToApply = null
+                onDutyApplyClicked(duty)
+            }
+        )
     }
 
 }

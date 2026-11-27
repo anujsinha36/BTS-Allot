@@ -19,6 +19,10 @@ interface DutyDao {
     @Query("SELECT * FROM duties WHERE id = :dutyId LIMIT 1")
     suspend fun getDutyById(dutyId: String): DutyEntity?
 
+    //for now in dutydetails-VM
+    @Query("SELECT * FROM duties WHERE id = :dutyId LIMIT 1")
+    fun observeDutyById(dutyId: String): Flow<DutyEntity?>
+
     @Query("SELECT * FROM duties WHERE date BETWEEN :startDate AND :endDate")
     fun observeDuties(startDate: String,endDate: String): Flow<List<DutyEntity>>
 

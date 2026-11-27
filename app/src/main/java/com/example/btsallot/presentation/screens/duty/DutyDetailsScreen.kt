@@ -14,7 +14,10 @@ import androidx.compose.material.icons.filled.Notes
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,7 +28,9 @@ import androidx.compose.ui.unit.dp
 import com.example.btsallot.domain.model.Duty
 import com.example.btsallot.domain.model.DutyApplication
 import com.example.btsallot.domain.utils.fromMinutes
+import com.example.btsallot.domain.utils.isUpcomingOrOngoing
 import com.example.btsallot.presentation.designsystem.buttons.PrimaryButton
+import com.example.btsallot.presentation.designsystem.dialogBox.ApplyConfirmationDialog
 import com.example.btsallot.presentation.designsystem.scaffold.AppScaffold
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.Blue600
@@ -45,11 +50,26 @@ import java.util.Locale
 fun DutyDetailsScreen(
     duty: Duty,
     applications: List<DutyApplication> = emptyList(),
+    hasApplied: Boolean = false,
     onBackClick: () -> Unit = {},
     onMoreClick: () -> Unit = {},
     onApplyClick: () -> Unit = {},
     isAdmin: Boolean = false
 ) {
+
+    var applyDialog by remember { mutableStateOf(false) }
+
+    if (applyDialog){
+        ApplyConfirmationDialog(
+            onDismiss = { applyDialog = false },
+            onConfirm = {
+                applyDialog = false
+                onApplyClick()
+                        },
+        )
+    }
+
+
     AppScaffold(
         title = "Duty Details",
         onBackClick = onBackClick,
@@ -57,7 +77,8 @@ fun DutyDetailsScreen(
     ) { padding ->
         Column(
             modifier = Modifier
-                .fillMaxSize().padding(padding)
+                .fillMaxSize()
+                .padding(padding)
                 .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = MaterialTheme.dimensions.medium)
                 .verticalScroll(rememberScrollState())
@@ -155,12 +176,20 @@ fun DutyDetailsScreen(
             }
 
             Spacer(modifier = Modifier.height(MaterialTheme.dimensions.large))
+            val isFull = duty.btsReservedCount >= duty.btsRequired
+            val applicationOpen = duty.isUpcomingOrOngoing()
+            val available = !hasApplied
+            val buttonText = when{
+                hasApplied -> "Applied"
+                !applicationOpen -> "Closed"
+                else  -> "Apply"
+            }
 
             if (!isAdmin) {
                 PrimaryButton(
-                    onClick = onApplyClick,
-                    text = "Apply for this Duty",
-                    enabled = true,
+                    onClick = { applyDialog = true },
+                    text = buttonText,
+                    enabled = !isFull && applicationOpen && available,
                 )
 
                 Spacer(modifier = Modifier.height(MaterialTheme.dimensions.medium))
@@ -209,7 +238,9 @@ fun DutyDetailsScreen(
 
                         applications.forEachIndexed { index, applicant ->
                             Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 val initials = applicant.userName
@@ -306,4 +337,4 @@ private fun DutyDetailsScreenPreview() {
 }
 
 
-
+//add delete/update functionality in dutylistcard for admin

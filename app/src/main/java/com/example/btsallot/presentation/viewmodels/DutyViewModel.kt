@@ -180,6 +180,15 @@ class DutyViewModel @Inject constructor(
         }
     }
 
+    fun deleteDutyById(dutyId: String){
+        viewModelScope.launch {
+            repository.deleteDuty(dutyId)
+                .onFailure { e->
+                    _errorMessage.value = e.message ?: "Unable to delete duty"
+                }
+        }
+    }
+
     fun createTemplate(template: DutyTemplate){
         viewModelScope.launch {
             repository.createTemplate(template)

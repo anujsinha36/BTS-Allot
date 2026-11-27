@@ -15,7 +15,9 @@ fun AdminCalendarScreenContainer(
     onDateClicked: (LocalDate) -> Unit = {},
     onCreateTemplate: () -> Unit = {},
     onBtsScreen: () -> Unit = {},
-    onDutyClick: (String) -> Unit = {}
+    onDutyClick: (String) -> Unit = {},
+    onDashboardScreen: () -> Unit = {},
+    onBtsList: () -> Unit = {}
 ) {
     val dutyViewModel: DutyViewModel = hiltViewModel()
     val uiState by dutyViewModel.uiState.collectAsStateWithLifecycle()
@@ -41,7 +43,12 @@ fun AdminCalendarScreenContainer(
                 onDateClicked = onDateClicked,
                 onCreateTemplate = onCreateTemplate,
                 onBtsScreen = onBtsScreen,
-                onDutyClick = onDutyClick
+                onDutyClick = onDutyClick,
+                onDashboard = onDashboardScreen,
+                onBtsList = onBtsList,
+                onDeleteDuty = {duty ->
+                    dutyViewModel.deleteDutyById(duty.id)
+                }
             )
         }
     }

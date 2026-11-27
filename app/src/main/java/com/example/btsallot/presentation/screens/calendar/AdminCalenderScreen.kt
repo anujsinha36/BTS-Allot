@@ -31,11 +31,13 @@ import com.example.btsallot.presentation.designsystem.calendar.Day
 import com.example.btsallot.presentation.designsystem.calendar.DaysOfWeekTitle
 import com.example.btsallot.presentation.designsystem.calendar.DutyListCard
 import com.example.btsallot.presentation.designsystem.calendar.LegendRow
+import com.example.btsallot.presentation.designsystem.scaffold.AppScaffold
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.Blue600
 import com.example.btsallot.presentation.theme.StatusApplied
 import com.example.btsallot.presentation.theme.StatusAvailable
 import com.example.btsallot.presentation.theme.StatusFull
+import com.example.btsallot.presentation.theme.TextPrimary
 import com.example.btsallot.presentation.theme.dimensions
 import com.kizitonwose.calendar.compose.*
 import com.kizitonwose.calendar.core.CalendarDay
@@ -56,10 +58,12 @@ fun AdminCalenderScreen(
     onDateClicked: (LocalDate) -> Unit = {},
     onCreateTemplate: ()-> Unit = {},
     onBtsScreen: () -> Unit = {},
+    onDashboard: () -> Unit = {},
+    onBtsList: () -> Unit = {},
     onDutyClick: (String) -> Unit = {},
     onEditDuty: (Duty) -> Unit = {},
     onDeleteDuty: (Duty) -> Unit = {}
-){
+) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(6) }
     val endMonth = remember { currentMonth.plusMonths(1) }
@@ -90,12 +94,28 @@ fun AdminCalenderScreen(
         selectedDate.value = null
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(MaterialTheme.colorScheme.background)
-        .padding(horizontal = MaterialTheme.dimensions.medium)
-        .verticalScroll(state = rememberScrollState()),
-    ){
+    AppScaffold() { paddingValues ->
+    Column(
+        modifier = Modifier
+            .fillMaxSize().padding(paddingValues)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = MaterialTheme.dimensions.medium)
+            .verticalScroll(state = rememberScrollState()),
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()
+            .padding(horizontal = MaterialTheme.dimensions.small)
+        ) {
+            Text(
+                text = "Hello, Admin",
+                style = MaterialTheme.typography.titleMedium,
+                color = TextPrimary,
+            )
+            Spacer(modifier = Modifier.height(MaterialTheme.dimensions.extraSmall))
+            Text(text = "Let's make this month count.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onTertiaryFixed
+            )
+        }
 
         Spacer(modifier = Modifier.height(MaterialTheme.dimensions.medium))
         CalendarTitle(
@@ -121,7 +141,7 @@ fun AdminCalenderScreen(
         HorizontalCalendar(
             modifier = Modifier.padding(horizontal = MaterialTheme.dimensions.small),
             state = state,
-            dayContent = {day->
+            dayContent = { day ->
                 val dayDuties = dutiesByDate[day.date.toString()] ?: emptyList()
                 val dayColor = when {
                     // 1. If there are no duties at all
@@ -138,14 +158,15 @@ fun AdminCalenderScreen(
                     // 4. Otherwise, duties are available (hasDuty = true)
                     else -> StatusAvailable
                 }
-                Day(day, selectedDate.value == day,
+                Day(
+                    day, selectedDate.value == day,
                     duties = dayDuties,
-                    onClick = {clicked->
-                    selectedDate.value = clicked
-                  //  onDateClicked(clicked.date)
-                }, color = dayColor
+                    onClick = { clicked ->
+                        selectedDate.value = clicked
+                        //  onDateClicked(clicked.date)
+                    }, color = dayColor
                 )
-             },
+            },
             monthHeader = {
                 DaysOfWeekTitle(daysOfWeek)
             }
@@ -157,16 +178,17 @@ fun AdminCalenderScreen(
             val formattedDate = clicked.date.format(dateFormatter)
             val selectedDateDuties = dutiesByDate[clicked.date.toString()]
 
-            Row(modifier = Modifier.fillMaxWidth(),
+            Row(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = if(selectedDateDuties.isNullOrEmpty())"No duties on this date"
-                        else "Duties on $formattedDate",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = Blue600
-                    )
+            ) {
+                Text(
+                    text = if (selectedDateDuties.isNullOrEmpty()) "No duties on this date"
+                    else "Duties on $formattedDate",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Blue600
+                )
                 TextButton(
                     onClick = {
                         onDateClicked(clicked.date)
@@ -180,7 +202,7 @@ fun AdminCalenderScreen(
                 }
             }
             Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
-            if (!selectedDateDuties.isNullOrEmpty()){
+            if (!selectedDateDuties.isNullOrEmpty()) {
                 selectedDateDuties.forEach { duty ->
                     DutyListCard(
                         duty = duty,
@@ -193,22 +215,36 @@ fun AdminCalenderScreen(
             }
         }
         Spacer(modifier = Modifier.height(MaterialTheme.dimensions.large))
-        PrimaryButton(onClick = {onCreateTemplate()},
+        PrimaryButton(
+            onClick = { onCreateTemplate() },
             text = "Create Template",
-            enabled = true)
+            enabled = true
+        )
 
         Spacer(modifier = Modifier.height(MaterialTheme.dimensions.small))
         PrimaryButton(
-            onClick = {onBtsScreen()},
+            onClick = { onBtsScreen() },
             text = "BTS Screen",
             enabled = true
         )
         Spacer(modifier = Modifier.padding(vertical = 10.dp))
+        PrimaryButton(
+            onClick = { onDashboard() },
+            text = "Dashboard",
+            enabled = true
+        )
+        Spacer(modifier = Modifier.padding(vertical = 10.dp))
+        PrimaryButton(
+            onClick = { onBtsList() },
+            text = "BTS List",
+            enabled = true
+        )
         //sync button
 //        PrimaryButton(onClick = {onSync()},
 //            text = "Sync",
 //            enabled = true)
     }
+}
 }
 
 @Preview(showBackground = true)
@@ -232,6 +268,7 @@ fun PreviewAdminCalenderScreen(){
     }
 }
 
-//Add functionality for edit, delete button
+//Add functionality for edit, delete button (also make sure deletion deletes applications as well)
 //click on duty card takes to duty details, which can have separate option button for edit/delete
-//dialog box for delete confirmation
+
+//check all the files created and updated as part of dashboard and btslist screen and remove and do by own

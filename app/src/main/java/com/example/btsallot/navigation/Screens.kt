@@ -27,6 +27,12 @@ Screens {
     object ProfileScreen: Screens()
 
     @Serializable
+    object DashboardScreen: Screens()
+
+    @Serializable
+    object VolunteerListScreen: Screens()
+
+    @Serializable
     data class AdminDutyDetailsScreen(
         val dutyId: String
     ): Screens()

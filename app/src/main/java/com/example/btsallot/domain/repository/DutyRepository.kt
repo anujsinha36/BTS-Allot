@@ -20,6 +20,8 @@ interface DutyRepository {
    fun getAllDuties(): Flow<List<Duty>>
    fun observeDutiesByDate(start: String, end: String): Flow<List<Duty>>
 
+   fun observeDutyById(dutyId: String): Flow<Duty?>
+
    suspend fun createDutyApplication(application: DutyApplication): Result<Unit>
 
    suspend fun deleteApplication(dutyId: String, userId: String): Result<Unit>
@@ -33,5 +35,9 @@ interface DutyRepository {
 
    fun observeApplicationsForDuty(dutyId: String): Flow<List<DutyApplication>>
 
+   fun getAllApplications(): Flow<List<DutyApplication>>
+
+
+   suspend fun deleteDuty(dutyId: String): Result<Unit>
    fun observeAppliedDuties(userId: String): Flow<List<Duty>>
 }

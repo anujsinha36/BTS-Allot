@@ -22,6 +22,9 @@ import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import kotlin.collections.hashMapOf
@@ -104,6 +107,24 @@ class AuthRepositoryImpl(
         } catch (e: Exception) {
             Result.failure(e)
         }
+    }
+
+    override fun getUsers(): Flow<List<User>> = callbackFlow {
+        val listener = firestoreDB.collection("users")
+            .addSnapshotListener { snapshot, exception ->
+                if (exception != null) {
+                    close(exception)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val users = snapshot.documents.mapNotNull { doc ->
+                        doc.toObject(FirestoreUser::class.java)?.toDomainUser()
+                    }
+                    //what is this trySend?
+                    trySend(users)
+                }
+            }
+        awaitClose { listener.remove() }
     }
 
     //see if we can create a User data class as well

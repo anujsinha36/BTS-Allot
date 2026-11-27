@@ -60,7 +60,7 @@ fun DeleteConfirmationDialog(
 }
 
 @Composable
-fun CreateApplyConfirmationDialog(
+fun ApplyConfirmationDialog(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     title: String = "Confirm",

@@ -27,6 +27,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import com.example.btsallot.domain.model.Duty
 import com.example.btsallot.domain.utils.fromMinutes
 import com.example.btsallot.domain.utils.isUpcomingOrOngoing
+import com.example.btsallot.presentation.designsystem.dialogBox.DeleteConfirmationDialog
 import com.example.btsallot.presentation.screens.calendar.BTSCalenderScreen
 import com.example.btsallot.presentation.theme.BTSAllotTheme
 import com.example.btsallot.presentation.theme.Blue600
@@ -59,6 +64,19 @@ fun DutyListCard(duty: Duty,
                  onDeleteClick: (Duty) -> Unit = {},
                  appliedDutyId: Set<String> = emptySet()
 ) {
+    var dutyToDelete by remember { mutableStateOf<Duty?>(null) }
+
+    dutyToDelete?.let {
+        DeleteConfirmationDialog(
+            onDismiss = {dutyToDelete = null},
+            onConfirm = {
+                dutyToDelete = null
+                onDeleteClick(duty)
+            },
+        )
+    }
+
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -159,7 +177,7 @@ fun DutyListCard(duty: Duty,
                                     .size(36.dp)
                                     .clip(RoundedCornerShape(10.dp))
                                     .background(Color(0xFFFFEBEB))
-                                    .clickable { onDeleteClick(duty) },
+                                    .clickable { dutyToDelete = duty },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
@@ -218,7 +236,7 @@ fun DutyListCardPreview(){
             duty = duty,
             onDutyApplyClick = {},
             appliedDutyId = emptySet(),
-            isAdmin = false
+            isAdmin = true
         )
     }
 }

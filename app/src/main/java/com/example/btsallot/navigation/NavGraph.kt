@@ -9,6 +9,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.btsallot.presentation.designsystem.scaffold.BottomNavItem
+import com.example.btsallot.presentation.screens.DashboardScreenContainer
+import com.example.btsallot.presentation.screens.VolunteersListScreen
+import com.example.btsallot.presentation.screens.VolunteersListScreenContainer
 import com.example.btsallot.presentation.screens.home.HomeScreen
 import com.example.btsallot.presentation.screens.authenticate.LoginScreen
 import com.example.btsallot.presentation.screens.calendar.AdminCalendarScreenContainer
@@ -80,7 +83,9 @@ fun NavGraph(destination : String? = null){
                 onDateClicked = {navController.navigate(Screens.CreateDutyScreen(it.toString()))},
                 onCreateTemplate = {navController.navigate(Screens.TemplateScreen)},
                 onBtsScreen = {navController.navigate(Screens.BTSCalendarScreen)},
-                onDutyClick = {navController.navigate(Screens.AdminDutyDetailsScreen(it))}
+                onDutyClick = {navController.navigate(Screens.AdminDutyDetailsScreen(it))},
+                onDashboardScreen = {navController.navigate(Screens.DashboardScreen)},
+                onBtsList = {navController.navigate(Screens.VolunteerListScreen)}
             )
         }
         composable<Screens.BTSCalendarScreen> {
@@ -93,11 +98,11 @@ fun NavGraph(destination : String? = null){
 
         composable<Screens.TemplateScreen> {
             CreateDutyScreenContainer(
-                onSaveClick = {
-                    navController.navigate(Screens.CalendarScreen)
+                onSaveClick = {navController.popBackStack()
+                   // navController.navigate(Screens.CalendarScreen)
                 },
-                onBackClick = {
-                    navController.navigate(Screens.CalendarScreen)
+                onBackClick = {navController.popBackStack()
+                   // navController.navigate(Screens.CalendarScreen)
                 },
                 isTemplate = true,
                 dateFromCalendar = null
@@ -108,11 +113,11 @@ fun NavGraph(destination : String? = null){
             val args = it.toRoute<Screens.CreateDutyScreen>()
             CreateDutyScreenContainer(
                 dateFromCalendar = java.time.LocalDate.parse(args.date),
-                onSaveClick = {
-                    navController.navigate(Screens.CalendarScreen)
+                onSaveClick = {navController.popBackStack()
+                 //   navController.navigate(Screens.CalendarScreen)
                 },
-                onBackClick = {
-                    navController.navigate(Screens.CalendarScreen)
+                onBackClick = {navController.popBackStack()
+                   // navController.navigate(Screens.CalendarScreen)
                 },
                 isTemplate = false
             )
@@ -129,7 +134,11 @@ fun NavGraph(destination : String? = null){
             val args = it.toRoute<Screens.AdminDutyDetailsScreen>()
             DutyDetailsScreenContainer(
                 dutyId = args.dutyId,
-                isAdmin = true
+                isAdmin = true,
+                authViewModel = authViewModel,
+                onBackClick = {navController.popBackStack()
+                  //  navController.navigate(Screens.CalendarScreen)
+                }
             )
         }
 
@@ -138,8 +147,20 @@ fun NavGraph(destination : String? = null){
 
             DutyDetailsScreenContainer(
                 dutyId = args.dutyId,
-                isAdmin = false
+                isAdmin = false,
+                authViewModel = authViewModel,
+                onBackClick = {navController.popBackStack()
+                //    navController.navigate(Screens.BTSCalendarScreen)
+                }
             )
+        }
+
+        composable<Screens.DashboardScreen> {
+            DashboardScreenContainer()
+        }
+
+        composable<Screens.VolunteerListScreen> {
+            VolunteersListScreenContainer()
         }
 
         composable<Screens.ProfileScreen>{

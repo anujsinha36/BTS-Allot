@@ -142,6 +142,12 @@ class DutyRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun observeDutyById(dutyId: String): Flow<Duty?> {
+        return dutyDao.observeDutyById(dutyId).map { entity ->
+            entity?.toDomainDuty()
+        }
+    }
+
     override suspend fun getDutyById(dutyId: String): Result<Duty?> {
         return try {
             val duty = dutyDao.getDutyById(dutyId)?.toDomainDuty()
@@ -149,6 +155,21 @@ class DutyRepositoryImpl @Inject constructor(
         } catch (e: CancellationException){
             throw e
         } catch (e: Exception){
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteDuty(dutyId: String): Result<Unit> {
+        return try {
+            // Delete remotely first, so a failed Firestore request does not remove
+            // the only cached copy of the duty.
+            firestoreDB.collection("duties").document(dutyId).delete().await()
+            dutyDao.deleteDutyById(dutyId)
+            Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Log.e("DutyRepo", "Failed to delete duty from Firestore", e)
             Result.failure(e)
         }
     }
@@ -286,6 +307,12 @@ class DutyRepositoryImpl @Inject constructor(
     override fun observeApplicationsForDuty(dutyId: String): Flow<List<DutyApplication>> {
         return applicationDao.observeApplicationsForDuty(dutyId).map { entities ->
             entities.map { it.toDutyApplication()}
+        }
+    }
+
+    override fun getAllApplications(): Flow<List<DutyApplication>> {
+        return applicationDao.getAllApplications().map { entities ->
+            entities.map { it.toDutyApplication() }
         }
     }
 
